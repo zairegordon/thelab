@@ -1,0 +1,239 @@
+top_keys ['timestamp', 'status', 'season', 'athletes', 'coach', 'team']
+athletes len 6
+group 0 keys ['position', 'items']
+item keys ['id', 'uid', 'guid', 'alternateIds', 'firstName', 'lastName', 'fullName', 'displayName', 'shortName', 'weight', 'displayWeight', 'height', 'displayHeight', 'age', 'dateOfBirth', 'links', 'birthPlace', 'college', 'slug', 'jersey', 'position', 'injuries', 'teams', 'contracts', 'experience', 'status', 'headshot']
+fullName Vinny Anthony II
+displayName Vinny Anthony II
+displayPosition None
+position {'id': '1', 'name': 'Wide Receiver', 'displayName': 'Wide Receiver', 'abbreviation': 'WR', 'leaf': True, 'parent': {'id': '70', 'name': 'Offense', 'displayName': 'Offense', 'abbreviation': 'OFF', 'leaf': False}}
+team None
+headshot top {'href': 'https://a.espncdn.com/i/headshots/college-football/players/full/4869816.png', 'alt': 'Vinny Anthony II'}
+athlete keys []
+athlete headshot None
+athlete images None
+---
+item keys ['id', 'uid', 'guid', 'alternateIds', 'firstName', 'lastName', 'fullName', 'displayName', 'shortName', 'weight', 'displayWeight', 'height', 'displayHeight', 'age', 'dateOfBirth', 'links', 'birthPlace', 'college', 'slug', 'headshot', 'jersey', 'position', 'injuries', 'teams', 'contracts', 'experience', 'contract', 'status']
+fullName Matthew Bergeron
+displayName Matthew Bergeron
+displayPosition None
+position {'id': '73', 'name': 'Guard', 'displayName': 'Guard', 'abbreviation': 'G', 'leaf': False}
+team None
+headshot top {'href': 'https://a.espncdn.com/i/headshots/nfl/players/full/4568510.png', 'alt': 'Matthew Bergeron'}
+athlete keys []
+athlete headshot None
+athlete images None
+---
+item keys ['id', 'uid', 'guid', 'alternateIds', 'firstName', 'lastName', 'fullName', 'displayName', 'shortName', 'weight', 'displayWeight', 'height', 'displayHeight', 'age', 'dateOfBirth', 'links', 'birthPlace', 'college', 'slug', 'headshot', 'jersey', 'position', 'injuries', 'teams', 'contracts', 'experience', 'status']
+fullName Chris Blair
+displayName Chris Blair
+displayPosition None
+position {'id': '1', 'name': 'Wide Receiver', 'displayName': 'Wide Receiver', 'abbreviation': 'WR', 'leaf': True, 'parent': {'id': '70', 'name': 'Offense', 'displayName': 'Offense', 'abbreviation': 'OFF', 'leaf': False}}
+team None
+headshot top {'href': 'https://a.espncdn.com/i/headshots/nfl/players/full/4369886.png', 'alt': 'Chris Blair'}
+athlete keys []
+athlete headshot None
+athlete images None
+---
+group 1 keys ['position', 'items']
+item keys ['id', 'uid', 'guid', 'alternateIds', 'firstName', 'lastName', 'fullName', 'displayName', 'shortName', 'weight', 'displayWeight', 'height', 'displayHeight', 'age', 'dateOfBirth', 'links', 'birthPlace', 'college', 'slug', 'jersey', 'position', 'injuries', 'teams', 'contracts', 'experience', 'status', 'headshot']
+fullName Carlos Allen Jr.
+displayName Carlos Allen Jr.
+displayPosition None
+position {'id': '32', 'name': 'Defensive Tackle', 'displayName': 'Defensive Tackle', 'abbreviation': 'DT', 'leaf': True, 'parent': {'id': '71', 'name': 'Defense', 'displayName': 'Defense', 'abbreviation': 'DEF', 'leaf': False}}
+team None
+headshot top {'href': 'https://a.espncdn.com/i/headshots/college-football/players/full/4696117.png', 'alt': 'Carlos Allen Jr.'}
+athlete keys []
+athlete headshot None
+athlete images None
+---
+item keys ['id', 'uid', 'guid', 'alternateIds', 'firstName', 'lastName', 'fullName', 'displayName', 'shortName', 'weight', 'displayWeight', 'height', 'displayHeight', 'age', 'dateOfBirth', 'links', 'birthPlace', 'college', 'slug', 'headshot', 'jersey', 'position', 'injuries', 'teams', 'contracts', 'experience', 'status']
+fullName Keshawn Banks
+displayName Keshawn Banks
+displayPosition None
+position {'id': '31', 'name': 'Defensive End', 'displayName': 'Defensive End', 'abbreviation': 'DE', 'leaf': True, 'parent': {'id': '71', 'name': 'Defense', 'displayName': 'Defense', 'abbreviation': 'DEF', 'leaf': False}}
+team None
+headshot top {'href': 'https://a.espncdn.com/i/headshots/nfl/players/full/4361508.png', 'alt': 'Keshawn Banks'}
+athlete keys []
+athlete headshot None
+athlete images None
+---
+item keys ['id', 'uid', 'guid', 'alternateIds', 'firstName', 'lastName', 'fullName', 'displayName', 'shortName', 'weight', 'displayWeight', 'height', 'displayHeight', 'age', 'dateOfBirth', 'debutYear', 'links', 'birthPlace', 'college', 'slug', 'headshot', 'jersey', 'hand', 'position', 'injuries', 'teams', 'contracts', 'experience', 'contract', 'status']
+fullName Jessie Bates III
+displayName Jessie Bates III
+displayPosition None
+position {'id': '36', 'name': 'Safety', 'displayName': 'Safety', 'abbreviation': 'S', 'leaf': True, 'parent': {'id': '35', 'name': 'Defensive Back', 'displayName': 'Defensive Back', 'abbreviation': 'DB', 'leaf': True}}
+team None
+headshot top {'href': 'https://a.espncdn.com/i/headshots/nfl/players/full/3919512.png', 'alt': 'Jessie Bates III'}
+athlete keys []
+athlete headshot None
+athlete images None
+---
+sample athlete item json
+{
+  "id": "4869816",
+  "uid": "s:20~l:28~a:4869816",
+  "guid": "35cf5c58-7323-3bc4-9ab7-fecdd7c99fcd",
+  "alternateIds": {
+    "sdr": "4869816"
+  },
+  "firstName": "Vinny",
+  "lastName": "Anthony II",
+  "fullName": "Vinny Anthony II",
+  "displayName": "Vinny Anthony II",
+  "shortName": "V. Anthony II",
+  "weight": 190.0,
+  "displayWeight": "190 lbs",
+  "height": 72.0,
+  "displayHeight": "6' 0\"",
+  "age": 23,
+  "dateOfBirth": "2003-06-27T07:00Z",
+  "links": [
+    {
+      "language": "en-US",
+      "rel": [
+        "playercard",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/nfl/player/_/id/4869816/vinny-anthony-ii",
+      "text": "Player Card",
+      "shortText": "Player Card",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "stats",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/nfl/player/stats/_/id/4869816/vinny-anthony-ii",
+      "text": "Stats",
+      "shortText": "Stats",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "stats",
+        "sportscenter",
+        "app",
+        "athlete"
+      ],
+      "href": "sportscenter://x-callback-url/showClubhouse?uid=s:20~l:28~a:4869816&section=stats",
+      "text": "Stats",
+      "shortText": "Stats",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "splits",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/nfl/player/splits/_/id/4869816/vinny-anthony-ii",
+      "text": "Splits",
+      "shortText": "Splits",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "gamelog",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/nfl/player/gamelog/_/id/4869816/vinny-anthony-ii",
+      "text": "Game Log",
+      "shortText": "Game Log",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "gamelog",
+        "sportscenter",
+        "app",
+        "athlete"
+      ],
+      "href": "sportscenter://x-callback-url/showClubhouse?uid=s:20~l:28~a:4869816&section=gamelog",
+      "text": "Game Log",
+      "shortText": "Game Log",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "news",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/nfl/player/news/_/id/4869816/vinny-anthony-ii",
+      "text": "News",
+      "shortText": "News",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "news",
+        "sportscenter",
+        "app",
+        "athlete"
+      ],
+      "href": "sportscenter://x-callback-url/showClubhouse?uid=s:20~l:28~a:4869816&section=news",
+      "text": "News",
+      "shortText": "News",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "bio",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/nfl/player/bio/_/id/4869816/vinny-anthony-ii",
+      "text": "Bio",
+      "shortText": "Bio",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "bio",
+        "sportscenter",
+        "app",
+        "athlete"
+      ],
+      "href": "sportscenter://x-callback-url/showClubhouse?uid=s:20~l:28~a:4869816&section=bio",
+      "text": "Bio",
+      "shortText": "Bio",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "language": "en-US",
+      "rel": [
+        "overview",
+        "desktop",
+        "athlete"
+      ],
+      "href": "https://www.espn.com/nfl/player/_/id/4869816/vinny-anthony-ii",
+      "text": "Overview",
+      "shortText": "Overview",
+      "isExternal": false,
+      "isPremium": false
+    },
+    {
+      "languag

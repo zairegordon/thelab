@@ -1,0 +1,13 @@
+C:\Users\zaire\AppData\Local\Python\pythoncore-3.14-64\Lib\site-packages\polars\_cpu_check.py:271: RuntimeWarning: Missing required CPU features.
+
+The following required CPU features were not detected:
+    avx, avx2, fma, bmi1, bmi2, lzcnt
+Continuing to use this version of Polars on this processor will likely result in a crash.
+Install `polars[rtcompat]` instead of `polars` to run Polars with better compatibility.
+
+Hint: If you are on an Apple ARM machine (e.g. M1) this is likely due to running Python under Rosetta.
+It is recommended to install a native version of Python that does not run under Rosetta x86-64 emulation.
+
+If you believe this warning to be a false positive, you can set the `POLARS_SKIP_CPU_CHECK` environment variable to bypass this check.
+
+  warnings.warn(

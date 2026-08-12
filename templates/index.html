@@ -1,0 +1,1920 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8">
+    <title>The Lab</title>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;700&family=Teko:wght@500;700&display=swap" rel="stylesheet">
+    <style>
+      :root {
+        --bg: #050505;
+        --bg-soft: #0c0c0c;
+        --oregon-green: #0f0f0f;
+        --oregon-night: #070707;
+        --panel: #ffffff;
+        --ink: #0f0f0f;
+        --accent: #39ff14;
+        --accent-lime: #39ff14;
+        --accent-lime-soft: #39ff14;
+        --accent-soft: #39ff14;
+        --text: #f4f4f4;
+        --muted: #b9b9b9;
+        --positive: #39ff14;
+        --warning: #39ff14;
+        --border: rgba(255, 255, 255, 0.16);
+        --panel-yard: rgba(255, 255, 255, 0.06);
+      }
+
+      * { box-sizing: border-box; }
+
+      body {
+        margin: 0;
+        min-height: 100vh;
+        background:
+          radial-gradient(circle at 8% 5%, rgba(57, 255, 20, 0.18), transparent 30%),
+          radial-gradient(circle at 74% 10%, rgba(57, 255, 20, 0.1), transparent 22%),
+          radial-gradient(circle at 85% 16%, rgba(57, 255, 20, 0.12), transparent 24%),
+          repeating-linear-gradient(148deg, rgba(57, 255, 20, 0.04) 0, rgba(57, 255, 20, 0.04) 2px, transparent 2px, transparent 44px),
+          linear-gradient(165deg, var(--bg) 0%, #080808 45%, #121212 100%);
+        color: var(--text);
+        font-family: "Space Grotesk", "Segoe UI", sans-serif;
+      }
+
+      .container {
+        max-width: 1280px;
+        margin: 0 auto;
+        padding: 24px 22px 44px;
+        position: relative;
+        isolation: isolate;
+      }
+
+      .topbar {
+        position: relative;
+        z-index: 200;
+        overflow: visible;
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 10px;
+        padding: 14px 18px;
+        border: 1px solid rgba(57, 255, 20, 0.26);
+        border-radius: 20px;
+        background: linear-gradient(90deg, rgba(8, 8, 8, 0.92) 0%, rgba(6, 6, 6, 0.92) 56%, rgba(14, 14, 14, 0.92) 100%);
+        backdrop-filter: blur(8px);
+        margin-bottom: 18px;
+        box-shadow: inset 0 0 0 1px rgba(57, 255, 20, 0.08), 0 14px 26px rgba(0, 0, 0, 0.4);
+      }
+
+      .topbar-main {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        gap: 10px;
+        width: 100%;
+      }
+
+      .brand {
+        font-family: "Teko", sans-serif;
+        font-weight: 700;
+        letter-spacing: 0.09em;
+        text-transform: uppercase;
+        font-size: clamp(28px, 3vw, 34px);
+        line-height: 1;
+      }
+
+      .brand span { color: var(--accent); }
+
+      .subhead {
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.14em;
+        text-transform: uppercase;
+      }
+
+      .top-links {
+        display: flex;
+        gap: 14px;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.09em;
+        align-items: center;
+      }
+
+      .top-links span,
+      .top-link-button {
+        color: #e7e7e7;
+        position: relative;
+        padding: 4px 6px;
+        border-radius: 999px;
+        background: transparent;
+        border: none;
+        font: inherit;
+        text-transform: inherit;
+        letter-spacing: inherit;
+        transition: background 0.2s ease;
+        cursor: pointer;
+      }
+
+      .top-link-group {
+        position: relative;
+        z-index: 220;
+      }
+
+      .top-news-group {
+        position: relative;
+        z-index: 230;
+      }
+
+      .top-link-group:hover .teams-menu,
+      .top-link-group:focus-within .teams-menu {
+        display: grid;
+      }
+
+      .top-links span:hover,
+      .top-link-button:hover,
+      .top-link-button[aria-expanded="true"] {
+        background: rgba(57, 255, 20, 0.11);
+      }
+
+      .top-news-menu {
+        position: absolute;
+        top: calc(100% + 8px);
+        left: 50%;
+        transform: translateX(-50%);
+        width: min(340px, 82vw);
+        max-height: 236px;
+        overflow-y: auto;
+        padding: 8px;
+        border: 1px solid rgba(57, 255, 20, 0.18);
+        border-radius: 10px;
+        background: rgba(6, 6, 6, 0.97);
+        box-shadow: 0 12px 24px rgba(0, 0, 0, 0.36);
+        backdrop-filter: blur(4px);
+        scrollbar-width: thin;
+        scrollbar-color: rgba(57, 255, 20, 0.38) rgba(255, 255, 255, 0.04);
+        z-index: 250;
+      }
+
+      .top-news-menu[hidden] {
+        display: none;
+      }
+
+      .top-news-menu-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 6px;
+      }
+
+      .top-news-item {
+        border: 1px solid rgba(57, 255, 20, 0.1);
+        border-radius: 7px;
+        padding: 6px 7px;
+        background: rgba(57, 255, 20, 0.03);
+      }
+
+      .top-news-link {
+        color: #efefef;
+        text-decoration: none;
+        font-size: 11px;
+        line-height: 1.25;
+      }
+
+      .top-news-link:hover {
+        color: #39ff14;
+        text-decoration: none;
+      }
+
+      .top-news-source {
+        display: block;
+        margin-top: 3px;
+        font-size: 8px;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        color: #a8a8a8;
+      }
+
+      .top-news-menu::-webkit-scrollbar {
+        width: 7px;
+      }
+
+      .top-news-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 999px;
+      }
+
+      .top-news-menu::-webkit-scrollbar-thumb {
+        background: rgba(57, 255, 20, 0.38);
+        border-radius: 999px;
+      }
+
+      .top-links span::after,
+      .top-link-button::after {
+        content: "";
+        position: absolute;
+        left: 0;
+        bottom: -4px;
+        width: 100%;
+        height: 1px;
+        background: rgba(57, 255, 20, 0.5);
+        transform: scaleX(0);
+        transform-origin: left;
+        transition: transform 0.2s ease;
+      }
+      .top-links span:hover::after,
+      .top-link-button:hover::after,
+      .top-link-button[aria-expanded="true"]::after { transform: scaleX(1); }
+
+      .teams-menu {
+        position: absolute;
+        top: calc(100% + 10px);
+        right: 0;
+        left: auto;
+        transform: none;
+        width: min(430px, calc(100vw - 40px));
+        padding: 8px;
+        border: 1px solid rgba(57, 255, 20, 0.24);
+        border-radius: 12px;
+        background: rgba(8, 8, 8, 0.98);
+        box-shadow: 0 18px 34px rgba(0, 0, 0, 0.4);
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(76px, 1fr));
+        gap: 5px;
+        max-height: 300px;
+        overflow-y: auto;
+        overscroll-behavior: contain;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(57, 255, 20, 0.4) rgba(255, 255, 255, 0.04);
+        z-index: 240;
+      }
+
+      .teams-menu::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .teams-menu::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 999px;
+      }
+
+      .teams-menu::-webkit-scrollbar-thumb {
+        background: rgba(57, 255, 20, 0.4);
+        border-radius: 999px;
+      }
+
+      .teams-menu[hidden] {
+        display: none;
+      }
+
+      .teams-menu a {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+        justify-content: center;
+        gap: 5px;
+        color: #f4f4f4;
+        text-decoration: none;
+        min-height: 62px;
+        padding: 6px 5px;
+        border-radius: 8px;
+        border: 1px solid rgba(57, 255, 20, 0.14);
+        background: rgba(57, 255, 20, 0.04);
+        transition: background 0.2s ease, border-color 0.2s ease, color 0.2s ease;
+        text-align: center;
+      }
+
+      .teams-menu img {
+        width: 24px;
+        height: 24px;
+        object-fit: contain;
+      }
+
+      .teams-menu .team-label {
+        font-size: 8px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+      }
+
+      .teams-menu-hint {
+        grid-column: 1 / -1;
+        position: sticky;
+        bottom: -10px;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        gap: 6px;
+        padding: 14px 0 4px;
+        margin-top: -4px;
+        background: linear-gradient(180deg, rgba(8, 8, 8, 0) 0%, rgba(8, 8, 8, 0.98) 40%);
+        pointer-events: none;
+      }
+
+      .teams-menu-hint span {
+        width: 10px;
+        height: 10px;
+        border-right: 2px solid rgba(57, 255, 20, 0.82);
+        border-bottom: 2px solid rgba(57, 255, 20, 0.82);
+        transform: rotate(45deg);
+        opacity: 0.9;
+      }
+
+      .teams-menu a:hover,
+      .teams-menu a.active {
+        background: rgba(57, 255, 20, 0.18);
+        border-color: rgba(57, 255, 20, 0.34);
+        color: #39ff14;
+      }
+
+      .sports-ticker {
+        margin: 0;
+        border: 1px solid rgba(57, 255, 20, 0.16);
+        border-radius: 10px;
+        background: linear-gradient(90deg, rgba(9, 9, 9, 0.95), rgba(7, 7, 7, 0.95));
+        overflow: hidden;
+        position: relative;
+      }
+
+      .sports-ticker-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 8px;
+        padding: 6px 10px;
+        border-bottom: 1px solid rgba(57, 255, 20, 0.1);
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .sports-ticker-title {
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .sports-ticker-status {
+        color: #b9b9b9;
+      }
+
+      .sports-ticker-viewport {
+        overflow: hidden;
+        width: 100%;
+      }
+
+      .sports-ticker-track {
+        display: flex;
+        align-items: center;
+        gap: 20px;
+        padding: 8px 10px;
+        width: max-content;
+        animation: ticker-glide 72s linear infinite;
+      }
+
+      .sports-ticker-track.static {
+        animation: none;
+      }
+
+      .sports-ticker-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 6px;
+        white-space: nowrap;
+        font-size: 11px;
+        color: #e7e7e7;
+      }
+
+      .sports-ticker-item strong {
+        color: #39ff14;
+        font-family: "Teko", sans-serif;
+        font-size: 14px;
+        letter-spacing: 0.05em;
+      }
+
+      .sports-ticker-dot {
+        width: 5px;
+        height: 5px;
+        border-radius: 50%;
+        background: rgba(57, 255, 20, 0.72);
+        flex-shrink: 0;
+      }
+
+      @keyframes ticker-glide {
+        0% { transform: translateX(0); }
+        100% { transform: translateX(-50%); }
+      }
+
+      .hero {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 12px;
+        margin-bottom: 14px;
+      }
+
+      .hero-copy {
+        border: 1px solid rgba(57, 255, 20, 0.14);
+        border-radius: 18px;
+        background: rgba(9, 9, 9, 0.82);
+        clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
+      }
+
+      .hero-copy {
+        padding: 24px;
+        position: relative;
+        overflow: hidden;
+      }
+
+      .hero-copy::before {
+        content: "";
+        position: absolute;
+        right: -110px;
+        top: -40px;
+        width: 260px;
+        height: 180px;
+        background: linear-gradient(140deg, rgba(57, 255, 20, 0.1), rgba(57, 255, 20, 0));
+        transform: rotate(14deg);
+      }
+
+      .hero-title {
+        margin: 0;
+        font-family: "Teko", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        font-size: clamp(42px, 6vw, 80px);
+        line-height: 0.88;
+      }
+
+      .hero-kicker {
+        margin: 0 0 12px;
+        color: #d3d3d3;
+        letter-spacing: 0.2em;
+        font-size: 10px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+
+      .hero-title strong {
+        color: var(--accent);
+        font-weight: 700;
+        text-shadow: 0 0 8px rgba(57, 255, 20, 0.16);
+      }
+
+      .hero-copy p {
+        margin: 14px 0 0;
+        max-width: 52ch;
+        color: #d7d7d7;
+        font-size: 14px;
+        line-height: 1.62;
+      }
+
+      .hero-card {
+        display: block;
+        padding: 16px;
+        background: linear-gradient(180deg, rgba(10, 10, 10, 0.88), rgba(7, 7, 7, 0.88));
+        position: relative;
+      }
+
+      .hero-card::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background: repeating-linear-gradient(
+          -35deg,
+          rgba(57, 255, 20, 0.03) 0,
+          rgba(57, 255, 20, 0.03) 2px,
+          transparent 2px,
+          transparent 18px
+        );
+      }
+
+      .hero-news {
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-news-title {
+        margin: 0 0 8px;
+        font-family: "Teko", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-size: 28px;
+        color: var(--accent);
+      }
+
+      .news-refreshed-at {
+        margin: 0 0 8px;
+        font-size: 10px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+        color: #b9b9b9;
+      }
+
+      .hero-news-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 8px;
+        max-height: 290px;
+        overflow-y: auto;
+        overflow-x: hidden;
+        padding-right: 4px;
+        overscroll-behavior: contain;
+      }
+
+      .hero-news-list::-webkit-scrollbar {
+        width: 8px;
+      }
+
+      .hero-news-list::-webkit-scrollbar-track {
+        background: rgba(57, 255, 20, 0.08);
+        border-radius: 999px;
+      }
+
+      .hero-news-list::-webkit-scrollbar-thumb {
+        background: rgba(57, 255, 20, 0.45);
+        border-radius: 999px;
+      }
+
+      .hero-news-item {
+        border: 1px solid rgba(57, 255, 20, 0.22);
+        border-radius: 8px;
+        padding: 8px;
+        background: rgba(8, 8, 8, 0.68);
+      }
+
+      .hero-news-link {
+        color: #f3f3f3;
+        text-decoration: none;
+        font-size: 12px;
+        line-height: 1.4;
+      }
+
+      .hero-news-link:hover {
+        color: #ffffff;
+        text-decoration: underline;
+      }
+
+      .hero-news-source {
+        display: block;
+        margin-top: 4px;
+        font-size: 9px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+        color: #c8c8c8;
+      }
+
+      .hero-metric {
+        border: 1px solid rgba(57, 255, 20, 0.22);
+        border-radius: 12px;
+        padding: 11px;
+        background: linear-gradient(145deg, rgba(57, 255, 20, 0.07), rgba(57, 255, 20, 0.02));
+        position: relative;
+        z-index: 1;
+      }
+
+      .hero-metric .label {
+        color: #d6d6d6;
+        font-size: 10px;
+        letter-spacing: 0.13em;
+      }
+
+      .hero-metric .value {
+        margin-top: 8px;
+        font-family: "Teko", sans-serif;
+        letter-spacing: 0.04em;
+        font-size: clamp(26px, 3vw, 30px);
+        color: #fff;
+        text-shadow: 0 0 14px rgba(57, 255, 20, 0.38);
+      }
+
+      h1, h2, h3, p { margin-top: 0; }
+
+      h2 {
+        margin-bottom: 8px;
+        font-family: "Teko", sans-serif;
+        text-transform: uppercase;
+        letter-spacing: 0.085em;
+        font-size: clamp(28px, 3.4vw, 34px);
+      }
+
+      .controls {
+        display: flex;
+        justify-content: space-between;
+        align-items: end;
+        gap: 12px;
+        flex-wrap: wrap;
+        margin-bottom: 22px;
+        width: min(680px, 100%);
+        padding: 10px 12px;
+        position: relative;
+        z-index: 10;
+        overflow: visible !important;
+        clip-path: none !important;
+      }
+
+      .hero-surface {
+        border: 1px solid rgba(57, 255, 20, 0.14);
+        border-radius: 18px;
+        background: rgba(9, 9, 9, 0.82);
+        clip-path: none !important;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+        color: #f3f3f3;
+        position: relative;
+        overflow: visible !important;
+      }
+
+      .hero-surface::before {
+        content: "";
+        position: absolute;
+        right: -110px;
+        top: -40px;
+        width: 260px;
+        height: 180px;
+        background: linear-gradient(140deg, rgba(57, 255, 20, 0.1), rgba(57, 255, 20, 0));
+        transform: rotate(14deg);
+        pointer-events: none;
+      }
+
+      .panel {
+        background: var(--panel);
+        color: var(--ink);
+        border: 1px solid #d7d7d7;
+        border-radius: 14px;
+        padding: 14px;
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+        margin-bottom: 16px;
+        position: relative;
+        overflow: hidden;
+        clip-path: polygon(0 0, calc(100% - 18px) 0, 100% 18px, 100% 100%, 0 100%);
+      }
+
+      .panel::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        right: 0;
+        width: 120px;
+        height: 8px;
+        background: linear-gradient(90deg, transparent 0%, var(--accent) 100%);
+      }
+
+      .panel::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        pointer-events: none;
+        background:
+          repeating-linear-gradient(
+            0deg,
+            transparent 0,
+            transparent 36px,
+            var(--panel-yard) 36px,
+            var(--panel-yard) 38px
+          ),
+          linear-gradient(90deg, transparent 0%, rgba(57, 255, 20, 0.05) 50%, transparent 100%);
+        opacity: 0.5;
+      }
+
+      .layout {
+        display: grid;
+        grid-template-columns: 1.1fr 1fr;
+        gap: 20px;
+      }
+
+      .overview-grid {
+        display: grid;
+        grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr) minmax(300px, 0.95fr);
+        gap: 14px;
+        align-items: start;
+        margin-bottom: 16px;
+      }
+
+      .overview-grid .panel {
+        height: 100%;
+        margin-bottom: 0;
+      }
+
+      .compact-panel {
+        display: flex;
+        flex-direction: column;
+        min-height: 0;
+      }
+
+      .compact-panel-body {
+        min-height: 0;
+        overflow-y: auto;
+        padding-right: 4px;
+        scrollbar-width: thin;
+        scrollbar-color: rgba(57, 255, 20, 0.32) rgba(255, 255, 255, 0.03);
+      }
+
+      .results-panel .compact-panel-body {
+        max-height: 460px;
+      }
+
+      .hero-panel {
+        border: 1px solid rgba(57, 255, 20, 0.14);
+        border-radius: 18px;
+        background: rgba(9, 9, 9, 0.82);
+        clip-path: polygon(0 0, calc(100% - 24px) 0, 100% 24px, 100% 100%, 0 100%);
+        box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
+        color: #f3f3f3;
+      }
+
+      .hero-panel::before {
+        content: "";
+        position: absolute;
+        right: -110px;
+        top: -40px;
+        width: 260px;
+        height: 180px;
+        background: linear-gradient(140deg, rgba(57, 255, 20, 0.1), rgba(57, 255, 20, 0));
+        transform: rotate(14deg);
+        pointer-events: none;
+      }
+
+      .hero-panel::after {
+        display: none;
+      }
+
+      .selected-panel .compact-panel-body,
+      .intel-panel .compact-panel-body {
+        max-height: 420px;
+      }
+
+      .compact-panel-body::-webkit-scrollbar {
+        width: 7px;
+      }
+
+      .compact-panel-body::-webkit-scrollbar-track {
+        background: rgba(255, 255, 255, 0.04);
+        border-radius: 999px;
+      }
+
+      .compact-panel-body::-webkit-scrollbar-thumb {
+        background: rgba(57, 255, 20, 0.32);
+        border-radius: 999px;
+      }
+
+      .summary {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(150px, 1fr));
+        gap: 10px;
+        margin-top: 16px;
+      }
+
+      .stat {
+        background: linear-gradient(145deg, #f7f7f7, #f1f1f1);
+        border: 1px solid #dddddd;
+        border-radius: 12px;
+        padding: 12px;
+        border-left: 4px solid var(--accent);
+      }
+
+      .label {
+        font-size: 11px;
+        color: #575757;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+      }
+
+      .value {
+        font-size: 19px;
+        margin-top: 6px;
+        font-weight: 700;
+      }
+
+      select, input {
+        width: min(700px, 100%);
+        padding: 10px 12px;
+        border-radius: 10px;
+        border: 1px solid #222;
+        font-size: 13px;
+        background: #fff;
+        color: #111;
+      }
+
+      label {
+        color: #111;
+        font-size: 11px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+        font-weight: 700;
+      }
+
+      button {
+        background: var(--ink);
+        color: var(--accent);
+        border: 1px solid #121212;
+        border-radius: 999px;
+        padding: 10px 16px;
+        font-weight: 700;
+        letter-spacing: 0.03em;
+        cursor: pointer;
+        transition: transform 0.18s ease, background 0.2s ease, color 0.2s ease;
+      }
+
+      button:hover {
+        background: var(--accent);
+        color: #101010;
+        transform: translateY(-1px);
+        box-shadow: 0 0 0 3px rgba(57, 255, 20, 0.24);
+      }
+
+      .search-field {
+        position: relative;
+        flex: 1;
+        min-width: 240px;
+        z-index: 100;
+      }
+
+      .search-surface label,
+      .hero-panel h2,
+      .hero-panel strong,
+      .hero-panel span,
+      .hero-panel p {
+        color: #f3f3f3;
+      }
+
+      .search-surface label {
+        color: #d3d3d3;
+      }
+
+      .search-surface input,
+      .search-surface select {
+        background: rgba(8, 8, 8, 0.92);
+        border: 1px solid rgba(57, 255, 20, 0.26);
+        color: #f5f5f5;
+      }
+
+      .search-surface input::placeholder {
+        color: #9c9c9c;
+      }
+
+      .suggestions {
+        position: fixed;
+        background: rgba(8, 8, 8, 0.98);
+        border: 1px solid rgba(57, 255, 20, 0.18);
+        border-top: none;
+        max-height: 260px;
+        overflow-y: auto;
+        border-radius: 0 0 12px 12px;
+        z-index: 9999999;
+        box-shadow: 0 14px 24px rgba(0, 0, 0, 0.22);
+      }
+
+      .suggestion-item {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+        padding: 10px 12px;
+        cursor: pointer;
+        background: rgba(8, 8, 8, 0.98);
+        color: #f3f3f3;
+        transition: background 0.2s ease;
+        border: none;
+        width: 100%;
+        text-align: left;
+      }
+
+      .suggestion-avatar,
+      .player-avatar {
+        width: 52px;
+        height: 52px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center 20%;
+        flex-shrink: 0;
+        border: 1px solid rgba(15, 15, 15, 0.22);
+        background: #e6e6e6;
+      }
+
+      .player-row {
+        display: flex;
+        align-items: center;
+        gap: 12px;
+      }
+
+      .suggestion-item:hover,
+      .suggestion-item.active {
+        background: rgba(57, 255, 20, 0.08);
+      }
+
+      .suggestion-item.active {
+        background: rgba(57, 255, 20, 0.12);
+      }
+
+      .chart img {
+        width: 100%;
+        border-radius: 12px;
+        border: 1px solid #dedede;
+      }
+
+      table {
+        width: 100%;
+        border-collapse: collapse;
+        margin-top: 10px;
+      }
+
+      .roster-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+        gap: 8px;
+        margin-top: 8px;
+      }
+
+      .roster-card {
+        position: relative;
+        border: 1px solid rgba(57, 255, 20, 0.14);
+        background: linear-gradient(145deg, rgba(13, 13, 13, 0.92) 0%, rgba(5, 5, 5, 0.9) 100%);
+        border-radius: 10px;
+        padding: 9px;
+        clip-path: polygon(0 0, calc(100% - 12px) 0, 100% 12px, 100% 100%, 0 100%);
+        box-shadow: 0 8px 14px rgba(0, 0, 0, 0.22);
+        transition: transform 0.2s ease, box-shadow 0.2s ease;
+        color: #f3f3f3;
+      }
+
+      .roster-card:hover {
+        transform: translateY(-3px);
+        box-shadow: 0 12px 20px rgba(0, 0, 0, 0.16);
+      }
+
+      .roster-card::before {
+        content: "";
+        position: absolute;
+        top: 0;
+        left: 0;
+        width: 100%;
+        height: 3px;
+        background: linear-gradient(90deg, var(--accent), var(--accent-lime-soft), #ffffff);
+      }
+
+      .roster-meta {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 5px;
+        margin: 6px 0 8px;
+      }
+
+      .roster-chip {
+        border: 1px solid rgba(57, 255, 20, 0.16);
+        background: rgba(57, 255, 20, 0.08);
+        color: #dfffd7;
+        border-radius: 999px;
+        padding: 3px 8px;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .table-wrap {
+        width: 100%;
+        overflow-x: auto;
+        -webkit-overflow-scrolling: touch;
+        margin-top: 10px;
+      }
+
+      .table-wrap table {
+        margin-top: 0;
+        min-width: 520px;
+      }
+
+      th, td {
+        padding: 10px;
+        text-align: left;
+        border-bottom: 1px solid #e8e8e8;
+      }
+
+      th {
+        background: linear-gradient(180deg, #111111, #070707);
+        color: #39ff14;
+        text-transform: uppercase;
+        font-size: 12px;
+        letter-spacing: 0.08em;
+      }
+
+      .winner { color: var(--positive); font-weight: bold; }
+
+      .intel-grid {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        margin-top: 10px;
+      }
+
+      .intel-card {
+        background: linear-gradient(170deg, #0b0b0b, #080808);
+        color: #f7f7f7;
+        border: 1px solid rgba(57, 255, 20, 0.25);
+        border-radius: 10px;
+        padding: 11px;
+        box-shadow: inset 0 0 0 1px rgba(57, 255, 20, 0.08);
+        clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
+      }
+
+      .intel-card .tag {
+        display: inline-block;
+        padding: 3px 7px;
+        border-radius: 999px;
+        background: rgba(57, 255, 20, 0.17);
+        color: var(--accent);
+        font-size: 10px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+        margin-bottom: 6px;
+      }
+
+      .intel-card strong { display: block; margin: 6px 0; font-size: 16px; }
+      .muted { color: var(--muted); }
+      ul { padding-left: 18px; }
+
+      .selected-list {
+        margin: 0;
+      }
+
+      .selected-item {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 10px;
+        padding: 6px 0;
+        border-bottom: 1px solid rgba(57, 255, 20, 0.08);
+      }
+
+      .compact-copy {
+        font-size: 13px;
+        line-height: 1.45;
+      }
+
+      .selected-item,
+      .panel table tr {
+        position: relative;
+        z-index: 1;
+      }
+
+      .remove-btn {
+        background: transparent;
+        color: #d6d6d6;
+        border-color: rgba(57, 255, 20, 0.2);
+      }
+
+      .remove-btn:hover {
+        background: rgba(57, 255, 20, 0.12);
+        color: var(--accent);
+        border-color: rgba(57, 255, 20, 0.26);
+      }
+
+      @media (max-width: 920px) {
+        .overview-grid,
+        .hero,
+        .layout {
+          grid-template-columns: 1fr;
+        }
+
+        .results-panel .compact-panel-body,
+        .selected-panel .compact-panel-body,
+        .intel-panel .compact-panel-body {
+          max-height: none;
+          overflow: visible;
+          padding-right: 0;
+        }
+
+        .container {
+          padding: 18px 14px 30px;
+        }
+
+        .hero {
+          gap: 14px;
+          margin-bottom: 16px;
+        }
+
+        .hero-copy {
+          padding: 18px;
+        }
+
+        .hero-card {
+          padding: 12px;
+        }
+
+        .hero-news-title {
+          font-size: 24px;
+        }
+
+        .hero-news-list {
+          max-height: 250px;
+        }
+
+        .hero-title {
+          font-size: clamp(36px, 10vw, 54px);
+        }
+
+        .hero-copy p {
+          font-size: 13px;
+          line-height: 1.55;
+        }
+
+        .topbar {
+          border-radius: 20px;
+          align-items: flex-start;
+          flex-direction: column;
+          padding: 14px;
+        }
+
+        .topbar-main {
+          width: 100%;
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 8px;
+        }
+
+        .top-links {
+          width: 100%;
+          justify-content: space-between;
+          gap: 6px;
+          font-size: 10px;
+        }
+
+        .teams-menu {
+          left: auto;
+          right: 0;
+          transform: none;
+          width: min(100vw - 28px, 430px);
+          grid-template-columns: repeat(auto-fit, minmax(72px, 1fr));
+          max-height: 300px;
+        }
+
+        .top-news-menu {
+          left: 0;
+          right: auto;
+          transform: none;
+          width: min(100vw - 28px, 340px);
+        }
+
+        .sports-ticker-track {
+          gap: 14px;
+          padding: 7px 8px;
+          animation-duration: 58s;
+        }
+
+        .controls {
+          align-items: stretch;
+          padding: 12px;
+        }
+
+        input {
+          width: 100%;
+        }
+
+        .roster-grid {
+          grid-template-columns: 1fr;
+        }
+
+        .player-avatar,
+        .suggestion-avatar {
+          width: 48px;
+          height: 48px;
+        }
+
+        .table-wrap table {
+          min-width: 460px;
+        }
+
+        th, td {
+          padding: 8px;
+          font-size: 12px;
+        }
+      }
+
+      @media (max-width: 560px) {
+        .brand {
+          font-size: 26px;
+        }
+
+        .top-links {
+          gap: 4px;
+          font-size: 9px;
+          letter-spacing: 0.05em;
+        }
+
+        .sports-ticker-header {
+          flex-direction: column;
+          align-items: flex-start;
+          gap: 4px;
+        }
+
+        .sports-ticker-item {
+          font-size: 10px;
+        }
+
+        .hero-kicker {
+          font-size: 9px;
+          letter-spacing: 0.16em;
+        }
+
+        .hero-news-link {
+          font-size: 11px;
+        }
+
+        .hero-news-list {
+          max-height: 220px;
+        }
+
+        .panel,
+        .controls,
+        .hero-copy,
+        .hero-card,
+        .intel-card,
+        .roster-card {
+          clip-path: none;
+          border-radius: 12px;
+        }
+
+        .table-wrap table {
+          min-width: 420px;
+        }
+      }
+
+      @media (prefers-reduced-motion: reduce) {
+        * {
+          animation: none !important;
+          transition: none !important;
+        }
+      }
+
+      #player-suggestions {
+        position: fixed;
+        z-index: 9999999;
+      }
+    </style>
+  </head>
+  <body>
+    <div class="container">
+      <div class="topbar">
+        <div class="topbar-main">
+          <div>
+            <div class="brand"><span>The</span> Lab</div>
+            <div class="subhead">Draft like it means something</div>
+          </div>
+          <div class="top-links">
+            <span>Compare</span>
+            <div class="top-news-group">
+              <button type="button" id="top-news-toggle" class="top-link-button" aria-expanded="false" aria-controls="top-news-menu">Latest NFL News</button>
+              <div id="top-news-menu" class="top-news-menu" hidden>
+                <ul id="top-news-menu-list" class="top-news-menu-list">
+                  <li class="top-news-item">
+                    <span class="top-news-link">Hover to load latest headlines...</span>
+                  </li>
+                </ul>
+              </div>
+            </div>
+            <div class="top-link-group">
+              <button type="button" id="teams-toggle" class="top-link-button" aria-expanded="false" aria-controls="teams-menu">NFL Teams</button>
+              <div id="teams-menu" class="teams-menu" hidden>
+                {% for team in nfl_teams %}
+                  <a href="/?team={{ team.abbr }}" class="{% if selected_team == team.abbr %}active{% endif %}">
+                    <img src="{{ team.logo }}" alt="{{ team.name }} logo" loading="lazy">
+                    <span class="team-label">{{ team.label }}</span>
+                  </a>
+                {% endfor %}
+                <div class="teams-menu-hint" aria-hidden="true">
+                  <span></span>
+                  <span></span>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <section class="sports-ticker" aria-label="Upcoming NFL games ticker">
+          <div class="sports-ticker-header">
+            <span class="sports-ticker-title">Upcoming NFL Games</span>
+            <span id="sports-ticker-status" class="sports-ticker-status">Loading schedule...</span>
+          </div>
+          <div class="sports-ticker-viewport">
+            <div id="sports-ticker-track" class="sports-ticker-track static">
+              <span class="sports-ticker-item">Loading upcoming games...</span>
+            </div>
+          </div>
+        </section>
+      </div>
+
+      <form method="GET" class="controls hero-surface search-surface">
+        <div class="search-field">
+          <label for="search">Search NFL player</label><br>
+          <input id="search" name="search" type="text" value="{{ search_query }}" placeholder="e.g. Patrick Mahomes" autocomplete="off" spellcheck="false">
+          {% if selected_team %}
+            <input type="hidden" name="team" value="{{ selected_team }}">
+          {% endif %}
+          {% for selected_value in selected_values %}
+            <input type="hidden" name="selected" value="{{ selected_value }}">
+          {% endfor %}
+        </div>
+
+        <div style="display:flex; align-items:end; gap:8px;">
+          <button type="submit">Search</button>
+        </div>
+      </form>
+
+      <section class="hero">
+        <div class="hero-copy">
+          <p class="hero-kicker">Performance Inspired Draft Intelligence</p>
+          <h1 class="hero-title">Built for <strong>Sunday</strong><br>Speed and Power.</h1>
+          <p>Search every active roster player, build your shortlist, and compare upside, floor, and draft value in a single high-contrast dashboard.</p>
+        </div>
+      </section>
+
+      <!-- Body-level dropdown: outside all clipping containers, renders above banner -->
+      <div id="player-suggestions" class="suggestions" hidden role="listbox" aria-label="Player suggestions"></div>
+
+      <script>
+        const searchInput = document.getElementById('search');
+        const suggestionsContainer = document.getElementById('player-suggestions');
+        const topNewsToggle = document.getElementById('top-news-toggle');
+        const topNewsMenu = document.getElementById('top-news-menu');
+        const topNewsMenuList = document.getElementById('top-news-menu-list');
+        const teamsToggle = document.getElementById('teams-toggle');
+        const teamsMenu = document.getElementById('teams-menu');
+        const gamesTickerTrack = document.getElementById('sports-ticker-track');
+        const gamesTickerStatus = document.getElementById('sports-ticker-status');
+        const NEWS_REFRESH_INTERVAL_MS = 120000;
+        const GAMES_REFRESH_INTERVAL_MS = 120000;
+        let topNewsMenuCloseTimer = 0;
+        let teamsMenuCloseTimer = 0;
+        let topNewsCache = [];
+        let topNewsLastUpdatedAt = 0;
+        let fetchAbortController = null;
+        let activeIndex = -1;
+        const suggestionCache = new Map();
+        let lastQuery = '';
+        let serverReachable = true;
+        let serverCheckBackoff = 5000;
+
+        async function checkServer() {
+          try {
+            const r = await fetch('/', { method: 'HEAD', cache: 'no-store' });
+            if (r.ok || r.status < 500) {
+              serverReachable = true;
+              serverCheckBackoff = 5000;
+            }
+          } catch (_e) {
+            serverReachable = false;
+            serverCheckBackoff = Math.min(serverCheckBackoff * 2, 60000);
+            setTimeout(checkServer, serverCheckBackoff);
+          }
+        }
+
+        if (teamsToggle && teamsMenu) {
+          const openTeamsMenu = () => {
+            window.clearTimeout(teamsMenuCloseTimer);
+            teamsMenu.hidden = false;
+            teamsToggle.setAttribute('aria-expanded', 'true');
+          };
+
+          const closeTeamsMenu = () => {
+            teamsMenu.hidden = true;
+            teamsToggle.setAttribute('aria-expanded', 'false');
+          };
+
+          const scheduleTeamsMenuClose = () => {
+            window.clearTimeout(teamsMenuCloseTimer);
+            teamsMenuCloseTimer = window.setTimeout(closeTeamsMenu, 120);
+          };
+
+          teamsToggle.addEventListener('mouseenter', openTeamsMenu);
+          teamsToggle.addEventListener('focus', openTeamsMenu);
+          teamsMenu.addEventListener('mouseenter', openTeamsMenu);
+          teamsMenu.addEventListener('focusin', openTeamsMenu);
+          teamsToggle.addEventListener('mouseleave', scheduleTeamsMenuClose);
+          teamsMenu.addEventListener('mouseleave', scheduleTeamsMenuClose);
+          teamsToggle.addEventListener('blur', scheduleTeamsMenuClose);
+
+          document.addEventListener('click', (event) => {
+            if (!teamsMenu.contains(event.target) && event.target !== teamsToggle) {
+              closeTeamsMenu();
+            }
+          });
+        }
+
+        function escapeHtml(value) {
+          return String(value || '')
+            .replace(/&/g, '&amp;')
+            .replace(/</g, '&lt;')
+            .replace(/>/g, '&gt;')
+            .replace(/\"/g, '&quot;')
+            .replace(/'/g, '&#39;');
+        }
+
+        function renderTopNewsMenuItems(items) {
+          if (!topNewsMenuList) {
+            return;
+          }
+
+          if (!Array.isArray(items) || !items.length) {
+            topNewsMenuList.innerHTML = `
+              <li class="top-news-item">
+                <span class="top-news-link">Latest headlines unavailable right now.</span>
+                <span class="top-news-source">Auto refresh every 2 minutes</span>
+              </li>
+            `;
+            return;
+          }
+
+          topNewsMenuList.innerHTML = items.slice(0, 8).map((item) => {
+            const headline = escapeHtml(item.headline || 'NFL update');
+            const source = escapeHtml(item.source || 'NFL');
+            const link = item.link ? String(item.link) : '';
+            if (link) {
+              return `<li class="top-news-item"><a class="top-news-link" href="${link}" target="_blank" rel="noopener noreferrer">${headline}</a><span class="top-news-source">${source}</span></li>`;
+            }
+            return `<li class="top-news-item"><span class="top-news-link">${headline}</span><span class="top-news-source">${source}</span></li>`;
+          }).join('');
+        }
+
+        async function syncTopNews(forceRefresh = false) {
+          if (!serverReachable) return [];
+          const suffix = forceRefresh ? `?refresh=1&t=${Date.now()}` : '';
+          const response = await fetch(`/news${suffix}`, { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error('news menu fetch failed');
+          }
+
+          const items = await response.json();
+          if (!Array.isArray(items) || !items.length) {
+            throw new Error('no top news');
+          }
+
+          topNewsCache = items;
+          topNewsLastUpdatedAt = Date.now();
+          return items;
+        }
+
+        async function loadTopNewsMenu(forceRefresh = false) {
+          if (!topNewsMenuList) {
+            return;
+          }
+
+          const needsFetch = forceRefresh || !topNewsCache.length;
+
+          if (needsFetch && !topNewsCache.length) {
+            topNewsMenuList.innerHTML = `
+              <li class="top-news-item">
+                <span class="top-news-link">Loading latest headlines...</span>
+              </li>
+            `;
+          }
+
+          try {
+            if (needsFetch) {
+              await syncTopNews(forceRefresh);
+            }
+
+            renderTopNewsMenuItems(topNewsCache);
+          } catch (_error) {
+            renderTopNewsMenuItems(topNewsCache);
+          }
+        }
+
+        if (topNewsToggle && topNewsMenu) {
+          const openTopNewsMenu = () => {
+            window.clearTimeout(topNewsMenuCloseTimer);
+            topNewsMenu.hidden = false;
+            topNewsToggle.setAttribute('aria-expanded', 'true');
+            const isStale = !topNewsLastUpdatedAt || (Date.now() - topNewsLastUpdatedAt >= NEWS_REFRESH_INTERVAL_MS);
+            loadTopNewsMenu(isStale);
+          };
+
+          const closeTopNewsMenu = () => {
+            topNewsMenu.hidden = true;
+            topNewsToggle.setAttribute('aria-expanded', 'false');
+          };
+
+          const scheduleTopNewsClose = () => {
+            window.clearTimeout(topNewsMenuCloseTimer);
+            topNewsMenuCloseTimer = window.setTimeout(closeTopNewsMenu, 120);
+          };
+
+          topNewsToggle.addEventListener('mouseenter', openTopNewsMenu);
+          topNewsToggle.addEventListener('focus', openTopNewsMenu);
+          topNewsMenu.addEventListener('mouseenter', openTopNewsMenu);
+          topNewsMenu.addEventListener('focusin', openTopNewsMenu);
+          topNewsToggle.addEventListener('mouseleave', scheduleTopNewsClose);
+          topNewsMenu.addEventListener('mouseleave', scheduleTopNewsClose);
+          topNewsToggle.addEventListener('blur', scheduleTopNewsClose);
+
+          document.addEventListener('click', (event) => {
+            if (!topNewsMenu.contains(event.target) && event.target !== topNewsToggle) {
+              closeTopNewsMenu();
+            }
+          });
+        }
+
+        function renderGamesTicker(games) {
+          if (!gamesTickerTrack) {
+            return;
+          }
+
+          if (!Array.isArray(games) || !games.length) {
+            gamesTickerTrack.classList.add('static');
+            gamesTickerTrack.innerHTML = '<span class="sports-ticker-item">No upcoming games available right now.</span>';
+            return;
+          }
+
+          const sourceItems = games.slice(0, 24).map((game) => {
+            const matchup = escapeHtml(game.matchup || 'Matchup TBD');
+            const kickoff = escapeHtml(game.kickoff || 'TBD');
+            const season = escapeHtml(game.season_label || 'NFL');
+            return `<span class="sports-ticker-item"><span class="sports-ticker-dot"></span><strong>${season}</strong>${matchup} • ${kickoff}</span>`;
+          });
+
+          const repeated = sourceItems.length > 1 ? sourceItems.concat(sourceItems) : sourceItems;
+          gamesTickerTrack.innerHTML = repeated.join('');
+          gamesTickerTrack.classList.toggle('static', sourceItems.length <= 1);
+        }
+
+        async function loadUpcomingGames(forceRefresh = false) {
+          if (!gamesTickerTrack || !serverReachable) {
+            return;
+          }
+
+          try {
+            const suffix = forceRefresh ? `?refresh=1&t=${Date.now()}` : '';
+            const response = await fetch(`/games${suffix}`, { cache: 'no-store' });
+            if (!response.ok) {
+              throw new Error('games fetch failed');
+            }
+
+            const games = await response.json();
+            renderGamesTicker(games);
+
+            if (gamesTickerStatus) {
+              gamesTickerStatus.textContent = `Updated ${new Date().toLocaleTimeString()}`;
+            }
+          } catch (_error) {
+            renderGamesTicker([]);
+            if (gamesTickerStatus) {
+              gamesTickerStatus.textContent = 'Schedule unavailable. Auto-retrying...';
+            }
+          }
+        }
+
+        loadTopNewsMenu(true);
+        loadUpcomingGames();
+        window.setInterval(() => loadTopNewsMenu(true), NEWS_REFRESH_INTERVAL_MS);
+        window.setInterval(() => loadUpcomingGames(true), GAMES_REFRESH_INTERVAL_MS);
+
+        function hideSuggestions() {
+          suggestionsContainer.innerHTML = '';
+          suggestionsContainer.hidden = true;
+          searchInput.setAttribute('aria-expanded', 'false');
+          activeIndex = -1;
+        }
+
+        function positionDropdown() {
+          if (!searchInput) return;
+          const rect = searchInput.getBoundingClientRect();
+          suggestionsContainer.style.left = rect.left + 'px';
+          suggestionsContainer.style.top = rect.bottom + 'px';
+          suggestionsContainer.style.width = rect.width + 'px';
+        }
+
+        function renderSuggestions(suggestions) {
+          if (!suggestions || suggestions.length === 0) {
+            hideSuggestions();
+            return;
+          }
+
+          positionDropdown();
+          const fragment = document.createDocumentFragment();
+          suggestions.forEach((player, index) => {
+            const item = document.createElement('button');
+            item.type = 'button';
+            item.className = 'suggestion-item';
+            item.dataset.value = player.value;
+            item.dataset.index = index;
+
+            if (player.headshot_url) {
+              const avatar = document.createElement('img');
+              avatar.className = 'suggestion-avatar';
+              avatar.src = player.headshot_url;
+              avatar.alt = `${player.name} headshot`;
+              avatar.loading = 'lazy';
+              item.appendChild(avatar);
+            }
+
+            const label = document.createElement('span');
+            label.textContent = player.display;
+            item.appendChild(label);
+            fragment.appendChild(item);
+          });
+
+          suggestionsContainer.innerHTML = '';
+          suggestionsContainer.appendChild(fragment);
+          suggestionsContainer.hidden = false;
+          searchInput.setAttribute('aria-expanded', 'true');
+          activeIndex = -1;
+        }
+
+        async function updateSuggestions(query) {
+          if (!query || query.length < 2) {
+            hideSuggestions();
+            return;
+          }
+
+          if (query === lastQuery && !suggestionsContainer.hidden) {
+            return;
+          }
+
+          if (suggestionCache.has(query)) {
+            renderSuggestions(suggestionCache.get(query));
+            lastQuery = query;
+            return;
+          }
+
+          if (fetchAbortController) {
+            fetchAbortController.abort();
+          }
+          fetchAbortController = new AbortController();
+
+          try {
+            const response = await fetch(
+              `/suggest?q=${encodeURIComponent(query)}`,
+              { signal: fetchAbortController.signal }
+            );
+
+            if (!response.ok) {
+              hideSuggestions();
+              return;
+            }
+
+            const suggestions = await response.json();
+            suggestionCache.set(query, suggestions);
+            lastQuery = query;
+            renderSuggestions(suggestions);
+          } catch (error) {
+            if (error.name === 'AbortError') {
+              return;
+            }
+            console.error('Unable to load player suggestions:', error);
+            hideSuggestions();
+          }
+        }
+
+        if (searchInput && suggestionsContainer) {
+          let timer = 0;
+
+          const triggerSuggestions = () => {
+            const query = searchInput.value.trim();
+            if (!query) {
+              hideSuggestions();
+              return;
+            }
+            clearTimeout(timer);
+            timer = window.setTimeout(() => updateSuggestions(query), 160);
+          };
+
+          searchInput.addEventListener('input', triggerSuggestions);
+          searchInput.addEventListener('keyup', triggerSuggestions);
+          searchInput.addEventListener('change', triggerSuggestions);
+          searchInput.addEventListener('focus', () => {
+            const currentValue = searchInput.value.trim();
+            if (currentValue.length >= 2) {
+              updateSuggestions(currentValue);
+            }
+          });
+
+          searchInput.addEventListener('keydown', (event) => {
+            const items = suggestionsContainer.querySelectorAll('.suggestion-item');
+            if (!items.length) return;
+
+            if (event.key === 'ArrowDown') {
+              event.preventDefault();
+              activeIndex = Math.min(activeIndex + 1, items.length - 1);
+              items.forEach((item, index) => item.classList.toggle('active', index === activeIndex));
+              items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+            } else if (event.key === 'ArrowUp') {
+              event.preventDefault();
+              activeIndex = Math.max(activeIndex - 1, 0);
+              items.forEach((item, index) => item.classList.toggle('active', index === activeIndex));
+              items[activeIndex]?.scrollIntoView({ block: 'nearest' });
+            } else if (event.key === 'Enter' && activeIndex >= 0) {
+              event.preventDefault();
+              const item = items[activeIndex];
+              if (item) {
+                searchInput.value = item.dataset.value || item.textContent.trim();
+                hideSuggestions();
+              }
+            } else if (event.key === 'Escape') {
+              hideSuggestions();
+            }
+          });
+
+          document.addEventListener('click', (event) => {
+            if (!suggestionsContainer.contains(event.target) && event.target !== searchInput) {
+              hideSuggestions();
+            }
+          });
+
+          suggestionsContainer.addEventListener('click', (event) => {
+            const item = event.target.closest('.suggestion-item');
+            if (!item) return;
+            searchInput.value = item.dataset.value || item.textContent.trim();
+            hideSuggestions();
+          });
+        }
+
+      </script>
+
+      <div class="overview-grid">
+        <div class="panel compact-panel results-panel hero-panel">
+          <h2>{{ result_title }}</h2>
+          <div class="compact-panel-body">
+            {% if players %}
+              <div class="roster-grid">
+                {% for player in players %}
+                  {% set player_identity = player.name ~ '|' ~ player.position ~ '|' ~ player.team %}
+                  <article class="roster-card">
+                    <div class="player-row">
+                      {% if player.headshot_url %}
+                        <img src="{{ player.headshot_url }}" alt="{{ player.name }} headshot" class="player-avatar">
+                      {% endif %}
+                      <strong>{{ player.name }}</strong>
+                    </div>
+                    <div class="roster-meta">
+                      <span class="roster-chip">{{ player.team }}</span>
+                      <span class="roster-chip">{{ player.position }}</span>
+                      <span class="roster-chip">Proj {{ player.projected_points }}</span>
+                    </div>
+                    <form method="GET" style="margin:0;">
+                      <input type="hidden" name="search" value="{{ search_query }}">
+                      {% if selected_team %}
+                        <input type="hidden" name="team" value="{{ selected_team }}">
+                      {% endif %}
+                      {% for selected_value in selected_values %}
+                        <input type="hidden" name="selected" value="{{ selected_value }}">
+                      {% endfor %}
+                      <input type="hidden" name="selected" value="{{ player_identity }}">
+                      <input type="hidden" name="compare" value="false">
+                      <button type="submit">Add to compare</button>
+                    </form>
+                  </article>
+                {% endfor %}
+              </div>
+            {% else %}
+              {% if selected_team_name %}
+                <p class="compact-copy">No roster data is available right now for {{ selected_team_name }}.</p>
+              {% else %}
+                <p class="compact-copy">No players matched your search.</p>
+              {% endif %}
+            {% endif %}
+          </div>
+        </div>
+
+        <div class="panel compact-panel selected-panel hero-panel">
+          <h2>Selected players</h2>
+          <div class="compact-panel-body">
+            {% if selected_players %}
+              <ul class="selected-list">
+                {% for player in selected_players %}
+                  {% set player_identity = player.name ~ '|' ~ player.position ~ '|' ~ player.team %}
+                  <li class="selected-item">
+                    <span>{{ player.name }} - {{ player.position }} ({{ player.team }})</span>
+                    <form method="GET" style="margin:0;">
+                      <input type="hidden" name="search" value="{{ search_query }}">
+                      {% if selected_team %}
+                        <input type="hidden" name="team" value="{{ selected_team }}">
+                      {% endif %}
+                      {% for value in selected_values %}
+                        {% if value != player_identity %}
+                          <input type="hidden" name="selected" value="{{ value }}">
+                        {% endif %}
+                      {% endfor %}
+                      <button type="submit" class="remove-btn">Remove</button>
+                    </form>
+                  </li>
+                {% endfor %}
+              </ul>
+            {% else %}
+              <p class="compact-copy">No players selected yet.</p>
+            {% endif %}
+          </div>
+
+          {% if selected_players|length == 2 %}
+            <form method="GET" style="margin-top:10px;">
+              <input type="hidden" name="search" value="{{ search_query }}">
+              {% if selected_team %}
+                <input type="hidden" name="team" value="{{ selected_team }}">
+              {% endif %}
+              {% for value in selected_values %}
+                <input type="hidden" name="selected" value="{{ value }}">
+              {% endfor %}
+              <input type="hidden" name="compare" value="true">
+              <button type="submit">Compare selected players</button>
+            </form>
+          {% endif %}
+        </div>
+
+        <div class="panel compact-panel intel-panel hero-panel">
+          <h2>Game intel</h2>
+          <div class="compact-panel-body">
+            <div class="intel-grid">
+              {% for intel in matchup_intel %}
+                <div class="intel-card">
+                  <div class="tag">Matchup intel</div>
+                  <div class="player-row" style="margin-bottom:8px;">
+                    {% if intel.headshot_url %}
+                      <img src="{{ intel.headshot_url }}" alt="{{ intel.player }} headshot" class="player-avatar">
+                    {% endif %}
+                    <strong>{{ intel.player }}</strong>
+                  </div>
+                  <div class="muted">{{ intel.team }} {{ intel.opponent }}</div>
+                  <p class="compact-copy"><strong>Spread:</strong> {{ intel.spread }} | <strong>O/U:</strong> {{ intel.total }}</p>
+                  <p class="compact-copy"><strong>Odds:</strong> {{ intel.moneyline }}</p>
+                  <p class="compact-copy"><strong>Injury:</strong> {{ intel.injury_status }}</p>
+                  <p class="compact-copy"><strong>Weather:</strong> {{ intel.weather }}</p>
+                  <p class="muted compact-copy">{{ intel.detail }}</p>
+                </div>
+              {% endfor %}
+            </div>
+          </div>
+        </div>
+      </div>
+
+      {% if comparison %}
+        <div class="layout">
+          <div class="panel">
+            <h2>Draft comparison</h2>
+            <div class="summary">
+              <div class="stat">
+                <div class="label">Winner</div>
+                <div class="value winner">{{ comparison.winner }}</div>
+              </div>
+              <div class="stat">
+                <div class="label">Score gap</div>
+                <div class="value">{{ comparison.score_gap }}</div>
+              </div>
+              <div class="stat">
+                <div class="label">Proj. points leader</div>
+                <div class="value">{{ comparison.category_winner.projected_points }}</div>
+              </div>
+              <div class="stat">
+                <div class="label">Ceiling leader</div>
+                <div class="value">{{ comparison.category_winner.ceiling }}</div>
+              </div>
+            </div>
+
+            <div class="table-wrap">
+              <table>
+                <thead>
+                  <tr>
+                    <th>Player</th>
+                    <th>Position</th>
+                    <th>Proj.</th>
+                    <th>Draft score</th>
+                  </tr>
+                </thead>
+                <tbody>
+                  <tr>
+                    <td>
+                      <div class="player-row">
+                        {% if comparison.player_a.headshot_url %}
+                          <img src="{{ comparison.player_a.headshot_url }}" alt="{{ comparison.player_a.name }} headshot" class="player-avatar">
+                        {% endif %}
+                        <span>{{ comparison.player_a.name }}</span>
+                      </div>
+                    </td>
+                    <td>{{ comparison.player_a.position }}</td>
+                    <td>{{ comparison.player_a.projected_points }}</td>
+                    <td>{{ comparison.player_a.draft_score }}</td>
+                  </tr>
+                  <tr>
+                    <td>
+                      <div class="player-row">
+                        {% if comparison.player_b.headshot_url %}
+                          <img src="{{ comparison.player_b.headshot_url }}" alt="{{ comparison.player_b.name }} headshot" class="player-avatar">
+                        {% endif %}
+                        <span>{{ comparison.player_b.name }}</span>
+                      </div>
+                    </td>
+                    <td>{{ comparison.player_b.position }}</td>
+                    <td>{{ comparison.player_b.projected_points }}</td>
+                    <td>{{ comparison.player_b.draft_score }}</td>
+                  </tr>
+                </tbody>
+              </table>
+            </div>
+          </div>
+
+          <div class="panel chart">
+            <h2>Projected points</h2>
+            <img src="data:image/png;base64,{{ chart_data }}" alt="Projected fantasy points chart">
+          </div>
+        </div>
+      {% endif %}
+    </div>
+
+  </body>
+</html>
