@@ -44,6 +44,14 @@ try:
 except Exception:  # pragma: no cover - optional package for matchup intel
     fantasyfootball = None
 
+try:
+    from sleeper_wrapper import Players as SleeperPlayers
+except Exception:  # pragma: no cover - optional package for trending data
+    SleeperPlayers = None
+
+_SLEEPER_DIRECTORY_CACHE = {"players": {}, "fetched_at": 0}
+_SLEEPER_DIRECTORY_CACHE_TTL = 24 * 60 * 60
+
 
 NFL_TEAMS = [
     {"abbr": "ARI", "name": "Arizona Cardinals", "label": "Cardinals", "logo": "https://a.espncdn.com/i/teamlogos/nfl/500/ari.png"},
@@ -272,7 +280,69 @@ def resolve_headshot_url(name: str) -> Optional[str]:
     headshot_map = get_headshot_map()
     if normalized_name and normalized_name in headshot_map:
         return _normalize_headshot_url(headshot_map[normalized_name])
-    return _normalize_headshot_url(headshot_map.get(name.strip().lower()))
+    known_url = _normalize_headshot_url(headshot_map.get(name.strip().lower()))
+    if known_url:
+        return known_url
+
+    if SleeperPlayers is not None and name:
+        try:
+            now = time.time()
+            if now - _SLEEPER_DIRECTORY_CACHE["fetched_at"] >= _SLEEPER_DIRECTORY_CACHE_TTL:
+                directory = SleeperPlayers().get_all_players("nfl")
+                _SLEEPER_DIRECTORY_CACHE["players"] = directory if isinstance(directory, dict) else {}
+                _SLEEPER_DIRECTORY_CACHE["fetched_at"] = now
+            target = _normalize_player_name(name)
+            for player_id, player_data in _SLEEPER_DIRECTORY_CACHE["players"].items():
+                first = str(player_data.get("first_name") or "").strip()
+                last = str(player_data.get("last_name") or "").strip()
+                full_name = _normalize_player_name(str(player_data.get("full_name") or f"{first} {last}"))
+                if full_name == target:
+                    return f"https://sleepercdn.com/content/nfl/players/thumb/{player_id}.jpg"
+        except Exception:
+            pass
+
+    return None
+
+
+def sleeper_headshot_url(player_id: str, player_data: dict, name: str) -> Optional[str]:
+    """Build a Sleeper CDN headshot URL, falling back to the existing resolver."""
+    avatar = str(player_data.get("avatar") or "").strip()
+    if avatar.startswith("http"):
+        return avatar
+    if player_id:
+        return f"https://sleepercdn.com/content/nfl/players/thumb/{player_id}.jpg"
+    return resolve_headshot_url(name)
+
+
+def sleeper_player_profile(name: str) -> dict:
+    """Find a player's Sleeper profile from the cached NFL directory."""
+    if SleeperPlayers is None or not name:
+        return {}
+    try:
+        now = time.time()
+        if now - _SLEEPER_DIRECTORY_CACHE["fetched_at"] >= _SLEEPER_DIRECTORY_CACHE_TTL:
+            directory = SleeperPlayers().get_all_players("nfl")
+            _SLEEPER_DIRECTORY_CACHE["players"] = directory if isinstance(directory, dict) else {}
+            _SLEEPER_DIRECTORY_CACHE["fetched_at"] = now
+        target = _normalize_player_name(name)
+        for player_data in _SLEEPER_DIRECTORY_CACHE["players"].values():
+            first = str(player_data.get("first_name") or "").strip()
+            last = str(player_data.get("last_name") or "").strip()
+            full_name = _normalize_player_name(str(player_data.get("full_name") or f"{first} {last}"))
+            if full_name == target:
+                return player_data
+    except Exception:
+        pass
+    return {}
+
+
+def enrich_player_position(player: Player) -> Player:
+    """Prefer Sleeper's position data when enriching a player for the UI."""
+    sleeper_profile = sleeper_player_profile(player.name)
+    sleeper_position = str(sleeper_profile.get("position") or "").strip().upper()
+    if sleeper_position:
+        player.position = sleeper_position
+    return player
 
 
 def player_from_espn_record(record) -> Player:
@@ -421,6 +491,8 @@ _NEWS_CACHE = {"items": [], "fetched_at": 0}
 _NEWS_CACHE_TTL = 2 * 60
 _GAMES_CACHE = {"items": [], "fetched_at": 0}
 _GAMES_CACHE_TTL = 2 * 60
+_TRENDING_CACHE = {"items": [], "fetched_at": 0}
+_TRENDING_CACHE_TTL = 4 * 60 * 60
 
 
 def get_latest_nfl_news(force_refresh: bool = False) -> List[dict]:
@@ -566,6 +638,49 @@ def get_upcoming_nfl_games(force_refresh: bool = False) -> List[dict]:
     _GAMES_CACHE["items"] = cleaned_games
     _GAMES_CACHE["fetched_at"] = now
     return cleaned_games
+
+
+def get_trending_players(force_refresh: bool = False) -> List[dict]:
+    """Return Sleeper's top ten added players with four-hour caching."""
+    now = time.time()
+    if not force_refresh and _TRENDING_CACHE["items"] and now - _TRENDING_CACHE["fetched_at"] < _TRENDING_CACHE_TTL:
+        return _TRENDING_CACHE["items"]
+
+    if SleeperPlayers is None:
+        return []
+
+    try:
+        sleeper_players = SleeperPlayers()
+        trending = sleeper_players.get_trending_players("nfl", add_drop="add", hours=24, limit=10)
+        directory = sleeper_players.get_all_players("nfl")
+    except Exception:
+        return _TRENDING_CACHE["items"] or []
+
+    items = []
+    for entry in trending:
+        player_id = str(entry.get("player_id") or "")
+        player_data = directory.get(player_id, {})
+        first_name = str(player_data.get("first_name") or "").strip()
+        last_name = str(player_data.get("last_name") or "").strip()
+        name = str(player_data.get("full_name") or f"{first_name} {last_name}").strip()
+        if not name:
+            continue
+        items.append(
+            {
+                "rank": len(items) + 1,
+                "name": name,
+                "position": str(player_data.get("position") or "FLEX"),
+                "team": str(player_data.get("team") or "FA"),
+                "trend_count": int(entry.get("count") or 0),
+                "headshot_url": sleeper_headshot_url(player_id, player_data, name),
+            }
+        )
+        if len(items) == 10:
+            break
+
+    _TRENDING_CACHE["items"] = items
+    _TRENDING_CACHE["fetched_at"] = now
+    return items
 
 
 def _fetch_all_active_players(year: int = 2026) -> List[Player]:
@@ -745,9 +860,19 @@ def get_espn_players() -> List[Player]:
     return players or get_default_players()
 
 
-def player_draft_score(player: Player) -> float:
-    """Score a player using projected output, ceiling, and stability."""
+def player_draft_score(player: Player, mode: str = "redraft") -> float:
+    """Score a player for a redraft or dynasty comparison."""
     risk_bonus = {"low": 12.0, "medium": 6.0, "high": 0.0}.get(player.risk.lower(), 6.0)
+    if mode == "dynasty":
+        position_bonus = {"QB": 8.0, "RB": 3.0, "WR": 10.0, "TE": 8.0}.get(player.position.upper(), 0.0)
+        return round(
+            player.projected_points * 0.9
+            + player.ceiling * 0.75
+            + (player.ceiling - player.floor) * 0.65
+            + risk_bonus
+            + position_bonus,
+            2,
+        )
     return round(
         player.projected_points * 1.2
         + (player.ceiling - player.floor) * 0.5
@@ -756,13 +881,15 @@ def player_draft_score(player: Player) -> float:
     )
 
 
-def compare_players(player_a: Player, player_b: Player) -> dict:
-    """Compare two players and return a draft-focused summary."""
-    a_score = player_draft_score(player_a)
-    b_score = player_draft_score(player_b)
+def compare_players(player_a: Player, player_b: Player, mode: str = "redraft") -> dict:
+    """Compare two players using the selected fantasy format."""
+    mode = mode if mode in {"redraft", "dynasty"} else "redraft"
+    a_score = player_draft_score(player_a, mode)
+    b_score = player_draft_score(player_b, mode)
     winner = player_a if a_score >= b_score else player_b
 
     return {
+        "mode": mode,
         "winner": winner.name,
         "score_gap": round(abs(a_score - b_score), 2),
         "category_winner": {
@@ -794,6 +921,15 @@ def player_from_identity(selected_value: str) -> Player:
     name = parts[0] if len(parts) > 0 else "Unknown Player"
     position = parts[1] if len(parts) > 1 else "FLEX"
     team = parts[2] if len(parts) > 2 else "FA"
+    roster_search = search_active_players(name) if name else []
+    for player in roster_search:
+        if player.name.lower() != name.lower():
+            continue
+        if position != "FLEX" and player.position.upper() != position.upper():
+            continue
+        if team != "FA" and player.team.upper() != team.upper():
+            continue
+        return player
     return Player(
         name=name,
         position=position,
@@ -826,6 +962,11 @@ def resolve_player_choice(players: List[Player], selected_value: Optional[str], 
 
     for player in players:
         if selected_value == player.name:
+            return player
+
+    roster_search = search_active_players(selected_value)
+    for player in roster_search:
+        if player.name.lower() == selected_value.lower():
             return player
 
     if "|" in selected_value:
@@ -888,6 +1029,13 @@ def build_matchup_intel(players: List[Player]) -> List[dict]:
             if callable(getter):
                 intel = getter(players)
                 if isinstance(intel, list) and intel:
+                    photos_by_name = {player.name.lower(): player.headshot_url for player in players if player.headshot_url}
+                    positions_by_name = {player.name.lower(): player.position for player in players}
+                    for card in intel:
+                        if not card.get("headshot_url"):
+                            card["headshot_url"] = photos_by_name.get(str(card.get("player") or "").lower())
+                        if not card.get("position"):
+                            card["position"] = positions_by_name.get(str(card.get("player") or "").lower(), "FLEX")
                     return intel
         except Exception:
             pass
@@ -927,6 +1075,7 @@ def build_matchup_intel(players: List[Player]) -> List[dict]:
         intel.append(
             {
                 "player": player.name,
+                "position": player.position,
                 "team": team,
                 "opponent": opponent,
                 "spread": "-2.5" if team == "BUF" else "+2.5",
@@ -994,20 +1143,23 @@ def create_app() -> Flask:
         selected_players = []
         seen = set()
         for selected_value in selected_values:
-            resolved = resolve_player_choice(players, selected_value, fallback_index=0)
+            resolved = enrich_player_position(resolve_player_choice(players, selected_value, fallback_index=0))
             identity = player_identity(resolved)
             if identity not in seen:
                 selected_players.append(resolved)
                 seen.add(identity)
 
         compare_requested = request.args.get("compare") == "true"
+        compare_mode = (request.args.get("mode") or "redraft").strip().lower()
+        if compare_mode not in {"redraft", "dynasty"}:
+            compare_mode = "redraft"
         comparison = None
         if len(selected_players) == 2 and compare_requested:
-            comparison = compare_players(selected_players[0], selected_players[1])
+            comparison = compare_players(selected_players[0], selected_players[1], compare_mode)
 
         chart_players = selected_players if len(selected_players) == 2 else players[:10]
         chart_data = build_projection_chart(chart_players)
-        matchup_intel = build_matchup_intel(selected_players or players[:2])
+        matchup_intel = build_matchup_intel(selected_players) if selected_players else []
         selected_team_name = NFL_TEAMS_BY_ABBR.get(selected_team, "")
         if selected_team_name:
             result_title = f"{selected_team_name} Roster"
@@ -1024,6 +1176,7 @@ def create_app() -> Flask:
             player_list=players,
             search_query=search_query,
             compare_requested=compare_requested,
+            compare_mode=compare_mode,
             matchup_intel=matchup_intel,
             nfl_teams=NFL_TEAMS,
             selected_team=selected_team,
@@ -1052,7 +1205,7 @@ def create_app() -> Flask:
         suggestions = [
             {
                 "name": player.name,
-                "position": player.position,
+                "position": enrich_player_position(player).position,
                 "team": player.team,
                 "projected_points": player.projected_points,
                 "identity": player_identity(player),
@@ -1075,6 +1228,12 @@ def create_app() -> Flask:
         refresh_value = (request.args.get("refresh") or "").strip().lower()
         force_refresh = refresh_value in {"1", "true", "yes", "y", "on"}
         return jsonify(get_upcoming_nfl_games(force_refresh=force_refresh))
+
+    @app.route("/trending", methods=["GET"])
+    def trending():
+        refresh_value = (request.args.get("refresh") or "").strip().lower()
+        force_refresh = refresh_value in {"1", "true", "yes", "y", "on"}
+        return jsonify(get_trending_players(force_refresh=force_refresh))
 
     # Force template to reload from disk on every request
     @app.before_request

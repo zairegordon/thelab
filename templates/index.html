@@ -83,7 +83,10 @@
         line-height: 1;
       }
 
-      .brand span { color: var(--accent); }
+      .brand span {
+        color: var(--accent);
+        text-shadow: 0 0 6px rgba(57, 255, 20, 0.9), 0 0 16px rgba(57, 255, 20, 0.55);
+      }
 
       .subhead {
         color: var(--muted);
@@ -158,6 +161,71 @@
 
       .top-news-menu[hidden] {
         display: none;
+      }
+
+      .trending-menu {
+        width: min(285px, 78vw);
+        max-height: 330px;
+      }
+
+      .trending-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 5px;
+      }
+
+      .trending-item {
+        display: grid;
+        grid-template-columns: 20px 30px minmax(0, 1fr) auto;
+        align-items: center;
+        gap: 7px;
+        min-height: 38px;
+        padding: 5px 6px;
+        border: 1px solid rgba(57, 255, 20, 0.1);
+        border-radius: 7px;
+        background: rgba(57, 255, 20, 0.03);
+      }
+
+      .trending-rank {
+        color: var(--accent);
+        font-family: "Teko", sans-serif;
+        font-size: 18px;
+        line-height: 1;
+        text-align: center;
+      }
+
+      .trending-avatar {
+        width: 30px;
+        height: 30px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center 20%;
+        background: #e6e6e6;
+      }
+
+      .trending-name {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        color: #efefef;
+        font-size: 11px;
+        font-weight: 700;
+        line-height: 1.15;
+      }
+
+      .trending-meta {
+        color: #a8a8a8;
+        font-size: 9px;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .trending-empty {
+        color: #a8a8a8;
+        font-size: 11px;
+        padding: 8px;
+        text-align: center;
       }
 
       .top-news-menu-list {
@@ -683,16 +751,73 @@
         gap: 20px;
       }
 
+      .comparison-layout {
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 14px;
+        align-items: stretch;
+      }
+
+      .comparison-surface {
+        height: 100%;
+        margin-bottom: 0;
+      }
+
+      .comparison-layout > .comparison-surface:first-child {
+        top: -18px;
+      }
+
+      .comparison-layout > .comparison-surface:last-child {
+        top: 24px;
+      }
+
+      .comparison-surface .summary {
+        position: relative;
+        z-index: 1;
+      }
+
+      .comparison-surface .stat {
+        background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(255, 255, 255, 0.03));
+        border: 1px solid rgba(57, 255, 20, 0.16);
+        border-left: 3px solid var(--accent);
+        color: var(--text);
+      }
+
+      .comparison-surface .label {
+        color: var(--muted);
+      }
+
+      .comparison-surface .value {
+        color: #f3f3f3;
+        font-size: 16px;
+        overflow-wrap: anywhere;
+      }
+
+      .comparison-surface .table-wrap,
+      .comparison-surface.chart {
+        position: relative;
+        z-index: 1;
+      }
+
+      .comparison-surface td {
+        color: #f3f3f3;
+        border-bottom-color: rgba(57, 255, 20, 0.14);
+      }
+
+      .comparison-surface .chart img {
+        border-color: rgba(57, 255, 20, 0.22);
+        background: #080808;
+      }
+
       .overview-grid {
         display: grid;
-        grid-template-columns: minmax(0, 1.45fr) minmax(280px, 0.75fr) minmax(300px, 0.95fr);
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
-        align-items: start;
-        margin-bottom: 16px;
+        align-items: stretch;
+        margin-bottom: 0;
       }
 
       .overview-grid .panel {
-        height: 100%;
+        height: 300px;
         margin-bottom: 0;
       }
 
@@ -741,7 +866,15 @@
 
       .selected-panel .compact-panel-body,
       .intel-panel .compact-panel-body {
-        max-height: 420px;
+        max-height: 202px;
+      }
+
+      .selected-panel {
+        height: 230px !important;
+      }
+
+      .selected-panel .compact-panel-body {
+        max-height: 132px;
       }
 
       .compact-panel-body::-webkit-scrollbar {
@@ -902,6 +1035,41 @@
         background: rgba(57, 255, 20, 0.08);
       }
 
+      .suggestion-item:hover .suggestion-name,
+      .suggestion-item.active .suggestion-name {
+        color: var(--accent);
+        text-shadow: 0 0 8px rgba(57, 255, 20, 0.42);
+      }
+
+      .position-badge {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: fit-content;
+        min-width: 28px;
+        padding: 3px 7px;
+        border: 1px solid currentColor;
+        border-radius: 999px;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        text-transform: uppercase;
+      }
+
+      .hero-panel .position-badge,
+      .suggestion-item .position-badge {
+        color: #d9d9d9;
+      }
+
+      .position-qb { color: #67e8f9 !important; background: rgba(34, 211, 238, 0.14); }
+      .position-rb { color: #fb923c !important; background: rgba(249, 115, 22, 0.14); }
+      .position-wr { color: #f472b6 !important; background: rgba(236, 72, 153, 0.14); }
+      .position-te { color: #c084fc !important; background: rgba(168, 85, 247, 0.14); }
+      .position-k { color: #60a5fa !important; background: rgba(59, 130, 246, 0.14); }
+      .position-def { color: #f87171 !important; background: rgba(239, 68, 68, 0.14); }
+      .position-flex { color: #facc15 !important; background: rgba(234, 179, 8, 0.14); }
+
       .suggestion-item.active {
         background: rgba(57, 255, 20, 0.12);
       }
@@ -1001,7 +1169,7 @@
 
       .intel-grid {
         display: grid;
-        grid-template-columns: 1fr;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 10px;
         margin-top: 10px;
       }
@@ -1011,7 +1179,7 @@
         color: #f7f7f7;
         border: 1px solid rgba(57, 255, 20, 0.25);
         border-radius: 10px;
-        padding: 11px;
+        padding: 9px;
         box-shadow: inset 0 0 0 1px rgba(57, 255, 20, 0.08);
         clip-path: polygon(0 0, calc(100% - 14px) 0, 100% 14px, 100% 100%, 0 100%);
       }
@@ -1029,6 +1197,9 @@
       }
 
       .intel-card strong { display: block; margin: 6px 0; font-size: 16px; }
+      .intel-card .player-avatar { width: 40px; height: 40px; }
+      .intel-card .compact-copy { font-size: 11px; line-height: 1.35; }
+      .intel-card .muted { font-size: 11px; }
       .muted { color: var(--muted); }
       ul { padding-left: 18px; }
 
@@ -1036,13 +1207,127 @@
         margin: 0;
       }
 
+      .selected-panel {
+        grid-column: auto;
+      }
+
+      .selected-panel .compact-panel-body {
+        min-height: 0;
+      }
+
+      .selected-list {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 10px;
+        padding: 0;
+        list-style: none;
+      }
+
       .selected-item {
         display: flex;
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        padding: 6px 0;
-        border-bottom: 1px solid rgba(57, 255, 20, 0.08);
+        min-height: 48px;
+        padding: 8px 10px;
+        border: 1px solid rgba(57, 255, 20, 0.16);
+        border-radius: 10px;
+        background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(255, 255, 255, 0.03));
+      }
+
+      .selected-item span {
+        min-width: 0;
+        overflow-wrap: anywhere;
+        font-size: 13px;
+        font-weight: 700;
+      }
+
+      .selected-item .position-badge {
+        flex-shrink: 0;
+      }
+
+      .selected-item .selected-avatar {
+        width: 36px;
+        height: 36px;
+        border-radius: 50%;
+        object-fit: cover;
+        object-position: center 20%;
+        flex-shrink: 0;
+        background: #e6e6e6;
+      }
+
+      .selection-count {
+        color: var(--muted);
+        font-size: 11px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .format-picker {
+        display: flex;
+        align-items: center;
+        gap: 5px;
+        margin: 0 0 6px;
+        position: relative;
+        z-index: 1;
+      }
+
+      .format-picker label {
+        color: var(--muted);
+        font-size: 9px;
+        letter-spacing: 0.08em;
+      }
+
+      .format-picker select {
+        width: auto;
+        min-width: 104px;
+        padding: 5px 7px;
+        border: 1px solid rgba(57, 255, 20, 0.24);
+        border-radius: 8px;
+        background: rgba(8, 8, 8, 0.9);
+        color: #f3f3f3;
+        font-size: 10px;
+        transform: translateY(6px);
+      }
+
+      .comparison-mode {
+        color: var(--accent);
+        font-size: 10px;
+        letter-spacing: 0.1em;
+        text-transform: uppercase;
+      }
+
+      .compare-action {
+        width: auto;
+        margin: 6px 0 0 auto;
+        padding: 8px 12px;
+        background: var(--accent);
+        color: #080808;
+        border-color: var(--accent);
+        font-size: 10px;
+        text-transform: uppercase;
+        letter-spacing: 0.1em;
+      }
+
+      .compare-form {
+        display: flex;
+        justify-content: flex-end;
+      }
+
+      .compare-action:hover {
+        background: #c6ffb8;
+        color: #080808;
+        box-shadow: 0 0 0 3px rgba(57, 255, 20, 0.18), 0 8px 22px rgba(57, 255, 20, 0.16);
+      }
+
+      .selection-empty {
+        display: grid;
+        place-items: center;
+        min-height: 88px;
+        border: 1px dashed rgba(57, 255, 20, 0.24);
+        border-radius: 10px;
+        color: var(--muted);
+        text-align: center;
       }
 
       .compact-copy {
@@ -1060,6 +1345,9 @@
         background: transparent;
         color: #d6d6d6;
         border-color: rgba(57, 255, 20, 0.2);
+        flex-shrink: 0;
+        padding: 7px 10px;
+        font-size: 11px;
       }
 
       .remove-btn:hover {
@@ -1075,12 +1363,29 @@
           grid-template-columns: 1fr;
         }
 
+        .comparison-layout {
+          grid-template-columns: 1fr;
+        }
+
+        .comparison-layout > .comparison-surface:first-child,
+        .comparison-layout > .comparison-surface:last-child {
+          top: 0;
+        }
+
         .results-panel .compact-panel-body,
         .selected-panel .compact-panel-body,
         .intel-panel .compact-panel-body {
           max-height: none;
           overflow: visible;
           padding-right: 0;
+        }
+
+        .overview-grid .panel {
+          height: auto;
+        }
+
+        .selected-panel {
+          height: auto !important;
         }
 
         .container {
@@ -1173,6 +1478,18 @@
           grid-template-columns: 1fr;
         }
 
+        .selected-panel {
+          grid-column: auto;
+        }
+
+        .selected-list {
+          grid-template-columns: 1fr;
+        }
+
+        .intel-grid {
+          grid-template-columns: 1fr;
+        }
+
         .player-avatar,
         .suggestion-avatar {
           width: 48px;
@@ -1260,7 +1577,14 @@
             <div class="subhead">Draft like it means something</div>
           </div>
           <div class="top-links">
-            <span>Compare</span>
+            <div class="top-news-group trending-group">
+              <button type="button" id="trending-toggle" class="top-link-button" aria-expanded="false" aria-controls="trending-menu">Trending</button>
+              <div id="trending-menu" class="top-news-menu trending-menu" hidden>
+                <ul id="trending-list" class="trending-list">
+                  <li class="trending-empty">Hover to load trending players...</li>
+                </ul>
+              </div>
+            </div>
             <div class="top-news-group">
               <button type="button" id="top-news-toggle" class="top-link-button" aria-expanded="false" aria-controls="top-news-menu">Latest NFL News</button>
               <div id="top-news-menu" class="top-news-menu" hidden>
@@ -1336,16 +1660,23 @@
         const topNewsToggle = document.getElementById('top-news-toggle');
         const topNewsMenu = document.getElementById('top-news-menu');
         const topNewsMenuList = document.getElementById('top-news-menu-list');
+        const trendingToggle = document.getElementById('trending-toggle');
+        const trendingMenu = document.getElementById('trending-menu');
+        const trendingList = document.getElementById('trending-list');
         const teamsToggle = document.getElementById('teams-toggle');
         const teamsMenu = document.getElementById('teams-menu');
         const gamesTickerTrack = document.getElementById('sports-ticker-track');
         const gamesTickerStatus = document.getElementById('sports-ticker-status');
         const NEWS_REFRESH_INTERVAL_MS = 120000;
         const GAMES_REFRESH_INTERVAL_MS = 120000;
+        const TRENDING_REFRESH_INTERVAL_MS = 4 * 60 * 60 * 1000;
         let topNewsMenuCloseTimer = 0;
+        let trendingMenuCloseTimer = 0;
         let teamsMenuCloseTimer = 0;
         let topNewsCache = [];
         let topNewsLastUpdatedAt = 0;
+        let trendingCache = [];
+        let trendingLastUpdatedAt = 0;
         let fetchAbortController = null;
         let activeIndex = -1;
         const suggestionCache = new Map();
@@ -1478,6 +1809,102 @@
           }
         }
 
+        function renderTrendingPlayers(items) {
+          if (!trendingList) {
+            return;
+          }
+
+          if (!Array.isArray(items) || !items.length) {
+            trendingList.innerHTML = '<li class="trending-empty">Trending players unavailable right now.</li>';
+            return;
+          }
+
+          trendingList.innerHTML = items.slice(0, 10).map((player) => {
+            const name = escapeHtml(player.name || 'Unknown player');
+            const position = escapeHtml(player.position || 'FLEX');
+            const team = escapeHtml(player.team || 'FA');
+            const trendCount = escapeHtml(player.trend_count ?? '—');
+            const avatar = player.headshot_url
+              ? `<img class="trending-avatar" src="${escapeHtml(player.headshot_url)}" alt="${name} headshot" loading="lazy">`
+              : '<span class="trending-avatar" aria-hidden="true"></span>';
+            const positionClass = String(player.position || 'flex').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            return `<li class="trending-item"><span class="trending-rank">${player.rank}</span>${avatar}<span class="trending-name">${name}</span><span class="trending-meta"><span class="position-badge position-${positionClass}">${position}</span> ${team}<br>+${trendCount} adds</span></li>`;
+          }).join('');
+        }
+
+        async function syncTrendingPlayers() {
+          if (!serverReachable) return [];
+          const response = await fetch('/trending', { cache: 'no-store' });
+          if (!response.ok) {
+            throw new Error('trending players fetch failed');
+          }
+
+          const items = await response.json();
+          if (!Array.isArray(items) || !items.length) {
+            throw new Error('no trending players');
+          }
+
+          trendingCache = items;
+          trendingLastUpdatedAt = Date.now();
+          return items;
+        }
+
+        async function loadTrendingPlayers() {
+          if (!trendingList) {
+            return;
+          }
+
+          const isStale = !trendingLastUpdatedAt || (Date.now() - trendingLastUpdatedAt >= TRENDING_REFRESH_INTERVAL_MS);
+          if (!isStale && trendingCache.length) {
+            renderTrendingPlayers(trendingCache);
+            return;
+          }
+
+          if (!trendingCache.length) {
+            trendingList.innerHTML = '<li class="trending-empty">Loading trending players...</li>';
+          }
+
+          try {
+            await syncTrendingPlayers();
+            renderTrendingPlayers(trendingCache);
+          } catch (_error) {
+            renderTrendingPlayers(trendingCache);
+          }
+        }
+
+        if (trendingToggle && trendingMenu) {
+          const openTrendingMenu = () => {
+            window.clearTimeout(trendingMenuCloseTimer);
+            trendingMenu.hidden = false;
+            trendingToggle.setAttribute('aria-expanded', 'true');
+            loadTrendingPlayers();
+          };
+
+          const closeTrendingMenu = () => {
+            trendingMenu.hidden = true;
+            trendingToggle.setAttribute('aria-expanded', 'false');
+          };
+
+          const scheduleTrendingMenuClose = () => {
+            window.clearTimeout(trendingMenuCloseTimer);
+            trendingMenuCloseTimer = window.setTimeout(closeTrendingMenu, 120);
+          };
+
+          trendingToggle.addEventListener('mouseenter', openTrendingMenu);
+          trendingToggle.addEventListener('focus', openTrendingMenu);
+          trendingMenu.addEventListener('mouseenter', openTrendingMenu);
+          trendingMenu.addEventListener('focusin', openTrendingMenu);
+          trendingToggle.addEventListener('mouseleave', scheduleTrendingMenuClose);
+          trendingMenu.addEventListener('mouseleave', scheduleTrendingMenuClose);
+          trendingToggle.addEventListener('blur', scheduleTrendingMenuClose);
+
+          document.addEventListener('click', (event) => {
+            if (!trendingMenu.contains(event.target) && event.target !== trendingToggle) {
+              closeTrendingMenu();
+            }
+          });
+        }
+
         if (topNewsToggle && topNewsMenu) {
           const openTopNewsMenu = () => {
             window.clearTimeout(topNewsMenuCloseTimer);
@@ -1573,6 +2000,26 @@
           activeIndex = -1;
         }
 
+        function selectPlayer(value) {
+          if (!value) {
+            return;
+          }
+
+          const url = new URL(window.location.href);
+          const selected = url.searchParams.getAll('selected');
+          const nextSelected = selected.includes(value)
+            ? selected
+            : selected.length < 2
+              ? selected.concat(value)
+              : [selected[1], value];
+
+          url.searchParams.delete('search');
+          url.searchParams.delete('selected');
+          url.searchParams.delete('compare');
+          nextSelected.slice(0, 2).forEach((player) => url.searchParams.append('selected', player));
+          window.location.assign(url.toString());
+        }
+
         function positionDropdown() {
           if (!searchInput) return;
           const rect = searchInput.getBoundingClientRect();
@@ -1606,8 +2053,19 @@
             }
 
             const label = document.createElement('span');
-            label.textContent = player.display;
+            label.className = 'suggestion-name';
+            label.textContent = player.name;
             item.appendChild(label);
+
+            const position = document.createElement('span');
+            const positionClass = String(player.position || 'FLEX').toLowerCase().replace(/[^a-z0-9]+/g, '-');
+            position.className = `position-badge position-${positionClass}`;
+            position.textContent = player.position || 'FLEX';
+            item.appendChild(position);
+
+            const team = document.createElement('span');
+            team.textContent = player.team || 'FA';
+            item.appendChild(team);
             fragment.appendChild(item);
           });
 
@@ -1704,8 +2162,7 @@
               event.preventDefault();
               const item = items[activeIndex];
               if (item) {
-                searchInput.value = item.dataset.value || item.textContent.trim();
-                hideSuggestions();
+                selectPlayer(item.dataset.value || item.textContent.trim());
               }
             } else if (event.key === 'Escape') {
               hideSuggestions();
@@ -1718,92 +2175,76 @@
             }
           });
 
+          window.addEventListener('scroll', () => {
+            if (!suggestionsContainer.hidden) {
+              hideSuggestions();
+            }
+          }, { passive: true });
+
           suggestionsContainer.addEventListener('click', (event) => {
             const item = event.target.closest('.suggestion-item');
             if (!item) return;
-            searchInput.value = item.dataset.value || item.textContent.trim();
-            hideSuggestions();
+            selectPlayer(item.dataset.value || item.textContent.trim());
           });
         }
 
       </script>
 
       <div class="overview-grid">
-        <div class="panel compact-panel results-panel hero-panel">
-          <h2>{{ result_title }}</h2>
-          <div class="compact-panel-body">
-            {% if players %}
-              <div class="roster-grid">
-                {% for player in players %}
-                  {% set player_identity = player.name ~ '|' ~ player.position ~ '|' ~ player.team %}
-                  <article class="roster-card">
-                    <div class="player-row">
-                      {% if player.headshot_url %}
-                        <img src="{{ player.headshot_url }}" alt="{{ player.name }} headshot" class="player-avatar">
-                      {% endif %}
-                      <strong>{{ player.name }}</strong>
-                    </div>
-                    <div class="roster-meta">
-                      <span class="roster-chip">{{ player.team }}</span>
-                      <span class="roster-chip">{{ player.position }}</span>
-                      <span class="roster-chip">Proj {{ player.projected_points }}</span>
-                    </div>
-                    <form method="GET" style="margin:0;">
-                      <input type="hidden" name="search" value="{{ search_query }}">
-                      {% if selected_team %}
-                        <input type="hidden" name="team" value="{{ selected_team }}">
-                      {% endif %}
-                      {% for selected_value in selected_values %}
-                        <input type="hidden" name="selected" value="{{ selected_value }}">
-                      {% endfor %}
-                      <input type="hidden" name="selected" value="{{ player_identity }}">
-                      <input type="hidden" name="compare" value="false">
-                      <button type="submit">Add to compare</button>
-                    </form>
-                  </article>
-                {% endfor %}
-              </div>
-            {% else %}
-              {% if selected_team_name %}
-                <p class="compact-copy">No roster data is available right now for {{ selected_team_name }}.</p>
-              {% else %}
-                <p class="compact-copy">No players matched your search.</p>
-              {% endif %}
-            {% endif %}
-          </div>
-        </div>
-
         <div class="panel compact-panel selected-panel hero-panel">
-          <h2>Selected players</h2>
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; position:relative; z-index:1;">
+            <h2>Selected players</h2>
+            <span class="selection-count">{{ selected_players|length }} / 2 locked in</span>
+          </div>
           <div class="compact-panel-body">
             {% if selected_players %}
               <ul class="selected-list">
                 {% for player in selected_players %}
                   {% set player_identity = player.name ~ '|' ~ player.position ~ '|' ~ player.team %}
                   <li class="selected-item">
-                    <span>{{ player.name }} - {{ player.position }} ({{ player.team }})</span>
+                    {% if player.headshot_url %}
+                      <img src="{{ player.headshot_url }}" alt="{{ player.name }} headshot" class="selected-avatar">
+                    {% endif %}
+                    <span class="selected-name">{{ player.name }} - {{ player.team }}</span>
+                    <span class="position-badge position-{{ player.position|lower|replace(' ', '-') }}">{{ player.position }}</span>
                     <form method="GET" style="margin:0;">
                       <input type="hidden" name="search" value="{{ search_query }}">
                       {% if selected_team %}
                         <input type="hidden" name="team" value="{{ selected_team }}">
                       {% endif %}
                       {% for value in selected_values %}
-                        {% if value != player_identity %}
+                        {% if value != player_identity and value != player.name %}
                           <input type="hidden" name="selected" value="{{ value }}">
                         {% endif %}
                       {% endfor %}
+                      <input type="hidden" name="mode" value="{{ compare_mode }}">
                       <button type="submit" class="remove-btn">Remove</button>
                     </form>
                   </li>
                 {% endfor %}
               </ul>
             {% else %}
-              <p class="compact-copy">No players selected yet.</p>
+              <div class="selection-empty">Search above and choose a player to lock in your first matchup.</div>
             {% endif %}
           </div>
 
+          <form method="GET" class="format-picker">
+            <input type="hidden" name="search" value="{{ search_query }}">
+            {% if selected_team %}
+              <input type="hidden" name="team" value="{{ selected_team }}">
+            {% endif %}
+            {% for value in selected_values %}
+              <input type="hidden" name="selected" value="{{ value }}">
+            {% endfor %}
+            <label for="comparison-mode">Compare as</label>
+            <select id="comparison-mode" name="mode" onchange="this.form.submit()">
+              <option value="redraft" {% if compare_mode == 'redraft' %}selected{% endif %}>Redraft</option>
+              <option value="dynasty" {% if compare_mode == 'dynasty' %}selected{% endif %}>Dynasty</option>
+            </select>
+          </form>
+
           {% if selected_players|length == 2 %}
-            <form method="GET" style="margin-top:10px;">
+            <form method="GET" class="compare-form" style="margin:0;">
               <input type="hidden" name="search" value="{{ search_query }}">
               {% if selected_team %}
                 <input type="hidden" name="team" value="{{ selected_team }}">
@@ -1811,8 +2252,9 @@
               {% for value in selected_values %}
                 <input type="hidden" name="selected" value="{{ value }}">
               {% endfor %}
+              <input type="hidden" name="mode" value="{{ compare_mode }}">
               <input type="hidden" name="compare" value="true">
-              <button type="submit">Compare selected players</button>
+              <button type="submit" class="compare-action">Compare {{ compare_mode }} <span aria-hidden="true">→</span></button>
             </form>
           {% endif %}
         </div>
@@ -1830,13 +2272,15 @@
                     {% endif %}
                     <strong>{{ intel.player }}</strong>
                   </div>
-                  <div class="muted">{{ intel.team }} {{ intel.opponent }}</div>
+                  <div class="muted"><span class="position-badge position-{{ intel.position|default('FLEX')|lower|replace(' ', '-') }}">{{ intel.position|default('FLEX') }}</span> {{ intel.team }} {{ intel.opponent }}</div>
                   <p class="compact-copy"><strong>Spread:</strong> {{ intel.spread }} | <strong>O/U:</strong> {{ intel.total }}</p>
                   <p class="compact-copy"><strong>Odds:</strong> {{ intel.moneyline }}</p>
                   <p class="compact-copy"><strong>Injury:</strong> {{ intel.injury_status }}</p>
                   <p class="compact-copy"><strong>Weather:</strong> {{ intel.weather }}</p>
                   <p class="muted compact-copy">{{ intel.detail }}</p>
                 </div>
+              {% else %}
+                <div class="selection-empty">Select a player to load matchup intel.</div>
               {% endfor %}
             </div>
           </div>
@@ -1844,9 +2288,9 @@
       </div>
 
       {% if comparison %}
-        <div class="layout">
-          <div class="panel">
-            <h2>Draft comparison</h2>
+        <div class="layout comparison-layout">
+          <div class="panel compact-panel comparison-surface hero-panel">
+            <h2>Draft comparison <span class="comparison-mode">{{ comparison.mode }}</span></h2>
             <div class="summary">
               <div class="stat">
                 <div class="label">Winner</div>
@@ -1886,7 +2330,7 @@
                         <span>{{ comparison.player_a.name }}</span>
                       </div>
                     </td>
-                    <td>{{ comparison.player_a.position }}</td>
+                    <td><span class="position-badge position-{{ comparison.player_a.position|lower|replace(' ', '-') }}">{{ comparison.player_a.position }}</span></td>
                     <td>{{ comparison.player_a.projected_points }}</td>
                     <td>{{ comparison.player_a.draft_score }}</td>
                   </tr>
@@ -1899,7 +2343,7 @@
                         <span>{{ comparison.player_b.name }}</span>
                       </div>
                     </td>
-                    <td>{{ comparison.player_b.position }}</td>
+                    <td><span class="position-badge position-{{ comparison.player_b.position|lower|replace(' ', '-') }}">{{ comparison.player_b.position }}</span></td>
                     <td>{{ comparison.player_b.projected_points }}</td>
                     <td>{{ comparison.player_b.draft_score }}</td>
                   </tr>
@@ -1908,7 +2352,7 @@
             </div>
           </div>
 
-          <div class="panel chart">
+          <div class="panel compact-panel comparison-surface chart hero-panel">
             <h2>Projected points</h2>
             <img src="data:image/png;base64,{{ chart_data }}" alt="Projected fantasy points chart">
           </div>

@@ -1,0 +1,22 @@
+..F.....                                                                 [100%]
+================================== FAILURES ===================================
+___________ test_selected_players_persist_across_different_searches ___________
+
+    def test_selected_players_persist_across_different_searches():
+        app = create_app()
+    
+        response = app.test_client().get(
+            "/?search=mahomes&selected=Josh+Allen%7CQB%7CBUF&selected=Patrick+Mahomes%7CQB%7CKC"
+        )
+    
+        assert response.status_code == 200
+        assert b"Josh Allen" in response.data
+        assert b"Patrick Mahomes" in response.data
+>       assert b"0.0" not in response.data
+E       assert b'0.0' not in b'<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <title>The Lab</title>\n    <link rel="...      \n            </div>\n          </div>\n        </div>\n      </div>\n\n      \n    </div>\n\n  </body>\n</html>'
+E        +  where b'<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <title>The Lab</title>\n    <link rel="...      \n            </div>\n          </div>\n        </div>\n      </div>\n\n      \n    </div>\n\n  </body>\n</html>' = <WrapperTestResponse 64534 bytes [200 OK]>.data
+
+test_app.py:36: AssertionError
+=========================== short test summary info ===========================
+FAILED test_app.py::test_selected_players_persist_across_different_searches
+1 failed, 7 passed in 15.71s

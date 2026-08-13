@@ -1,13 +1,14 @@
 from app import compare_players, create_app, get_default_players, player_draft_score, player_from_espn_record, search_active_players
 
 
-def test_single_result_search_does_not_crash_on_comparison():
+def test_search_page_shows_selection_surface_without_results_section():
     app = create_app()
 
     response = app.test_client().get("/?search=Tuten&first=Christian+McCaffrey&second=CeeDee+Lamb")
 
     assert response.status_code == 200
-    assert b"Bhayshul Tuten" in response.data
+    assert b"Selected players" in response.data
+    assert b"Search results" not in response.data
 
 
 def test_selected_player_list_can_be_compared():
