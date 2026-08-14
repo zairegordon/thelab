@@ -163,6 +163,117 @@
         display: none;
       }
 
+      .sleeper-menu {
+        left: auto;
+        right: 0;
+        transform: none;
+        width: min(360px, calc(100vw - 28px));
+        max-height: min(420px, calc(100vh - 80px));
+        overflow-y: auto;
+      }
+
+      .sleeper-upload {
+        display: grid;
+        gap: 8px;
+      }
+
+      .sleeper-upload-title {
+        color: var(--accent);
+        font-family: "Teko", sans-serif;
+        font-size: 20px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .sleeper-upload-copy,
+      .sleeper-upload-status {
+        color: #b9b9b9;
+        font-size: 10px;
+        line-height: 1.35;
+      }
+
+      .sleeper-upload input[type="file"] {
+        min-width: 0;
+        max-width: 100%;
+        width: 100%;
+        padding: 7px;
+        border: 1px solid rgba(57, 255, 20, 0.18);
+        border-radius: 7px;
+        background: rgba(57, 255, 20, 0.03);
+        color: #efefef;
+        font: inherit;
+        font-size: 10px;
+      }
+
+      .sleeper-upload button {
+        justify-self: start;
+        padding: 7px 10px;
+        font-size: 10px;
+      }
+
+      .sleeper-summary {
+        display: grid;
+        grid-template-columns: repeat(3, minmax(0, 1fr));
+        gap: 5px;
+      }
+
+      .sleeper-stat {
+        padding: 6px;
+        border: 1px solid rgba(57, 255, 20, 0.14);
+        border-radius: 7px;
+        background: rgba(57, 255, 20, 0.04);
+      }
+
+      .sleeper-stat strong {
+        display: block;
+        color: #f3f3f3;
+        font-size: 13px;
+      }
+
+      .sleeper-stat span {
+        color: #a8a8a8;
+        font-size: 8px;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+      }
+
+      .sleeper-team-list {
+        display: grid;
+        gap: 5px;
+        margin: 0;
+        padding: 0;
+        list-style: none;
+      }
+
+      .sleeper-team {
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
+        gap: 7px;
+        padding: 6px 7px;
+        border: 1px solid rgba(57, 255, 20, 0.1);
+        border-radius: 7px;
+        background: rgba(57, 255, 20, 0.03);
+      }
+
+      .sleeper-team-name {
+        color: #efefef;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .sleeper-team-meta {
+        color: #a8a8a8;
+        font-size: 9px;
+        text-align: right;
+        white-space: nowrap;
+      }
+
+      .sleeper-team-detail {
+        grid-column: 1 / -1;
+        color: #b9b9b9;
+        font-size: 9px;
+      }
+
       .trending-menu {
         width: min(285px, 78vw);
         max-height: 330px;
@@ -226,6 +337,76 @@
         font-size: 11px;
         padding: 8px;
         text-align: center;
+      }
+
+      .injury-menu {
+        width: min(340px, 82vw);
+        max-height: 236px;
+      }
+
+      .injury-list {
+        margin: 0;
+        padding: 0;
+        list-style: none;
+        display: grid;
+        gap: 6px;
+      }
+
+      .injury-item {
+        border: 1px solid rgba(57, 255, 20, 0.1);
+        border-radius: 7px;
+        padding: 6px 7px;
+        background: rgba(57, 255, 20, 0.03);
+      }
+
+      .injury-item:hover {
+        background: rgba(57, 255, 20, 0.08);
+      }
+
+      .top-links .injury-item span::after,
+      .top-links .injury-item span:hover::after {
+        display: none;
+        content: none;
+        transform: none;
+      }
+
+      .injury-player {
+        color: #f3f3f3;
+        font-size: 11px;
+        font-weight: 700;
+      }
+
+      .injury-status {
+        display: block;
+        margin-top: 3px;
+        color: #a8a8a8;
+        font-size: 9px;
+        font-weight: 700;
+        letter-spacing: 0.05em;
+        text-transform: uppercase;
+      }
+
+      .injury-detail {
+        display: block;
+        margin-top: 3px;
+        color: #efefef;
+        font-size: 11px;
+        line-height: 1.3;
+      }
+
+      .injury-source {
+        display: inline-block;
+        margin-top: 4px;
+        color: #a8a8a8;
+        font-size: 8px;
+        letter-spacing: 0.07em;
+        text-transform: uppercase;
+        text-decoration: none;
+      }
+
+      .injury-source:hover {
+        color: #a8a8a8;
+        text-decoration: none;
       }
 
       .top-news-menu-list {
@@ -808,6 +989,16 @@
         background: #080808;
       }
 
+      .comparison-surface.chart {
+        height: 320px;
+        overflow: hidden;
+      }
+
+      .comparison-surface.chart img {
+        max-height: 252px;
+        object-fit: contain;
+      }
+
       .overview-grid {
         display: grid;
         grid-template-columns: repeat(2, minmax(0, 1fr));
@@ -1372,6 +1563,10 @@
           top: 0;
         }
 
+        .comparison-surface.chart {
+          height: auto;
+        }
+
         .results-panel .compact-panel-body,
         .selected-panel .compact-panel-body,
         .intel-panel .compact-panel-body {
@@ -1457,6 +1652,12 @@
           right: auto;
           transform: none;
           width: min(100vw - 28px, 340px);
+        }
+
+        .sleeper-menu {
+          left: auto;
+          right: 0;
+          width: min(100vw - 28px, 360px);
         }
 
         .sports-ticker-track {
@@ -1585,6 +1786,14 @@
                 </ul>
               </div>
             </div>
+            <div class="top-news-group injury-group">
+              <button type="button" id="injury-toggle" class="top-link-button" aria-expanded="false" aria-controls="injury-menu">Injury Report</button>
+              <div id="injury-menu" class="top-news-menu injury-menu" hidden>
+                <ul id="injury-list" class="injury-list">
+                  <li class="trending-empty">Hover to load the latest injury reports...</li>
+                </ul>
+              </div>
+            </div>
             <div class="top-news-group">
               <button type="button" id="top-news-toggle" class="top-link-button" aria-expanded="false" aria-controls="top-news-menu">Latest NFL News</button>
               <div id="top-news-menu" class="top-news-menu" hidden>
@@ -1593,6 +1802,19 @@
                     <span class="top-news-link">Hover to load latest headlines...</span>
                   </li>
                 </ul>
+              </div>
+            </div>
+            <div class="top-news-group">
+              <button type="button" id="sleeper-toggle" class="top-link-button" aria-expanded="false" aria-controls="sleeper-menu">My League</button>
+              <div id="sleeper-menu" class="top-news-menu sleeper-menu" hidden>
+                <form id="sleeper-upload" class="sleeper-upload" enctype="multipart/form-data">
+                  <div class="sleeper-upload-title">League intelligence</div>
+                  <div class="sleeper-upload-copy">Upload a JSON file containing your Sleeper <strong>league_id</strong>. The wrapper will fetch standings, rosters, and team analytics.</div>
+                  <input id="league-file" name="league_file" type="file" accept=".json,application/json" required>
+                  <button type="submit">Analyze league</button>
+                  <div id="sleeper-upload-status" class="sleeper-upload-status">No league loaded.</div>
+                  <div id="sleeper-results"></div>
+                </form>
               </div>
             </div>
             <div class="top-link-group">
@@ -1663,6 +1885,15 @@
         const trendingToggle = document.getElementById('trending-toggle');
         const trendingMenu = document.getElementById('trending-menu');
         const trendingList = document.getElementById('trending-list');
+        const injuryToggle = document.getElementById('injury-toggle');
+        const injuryMenu = document.getElementById('injury-menu');
+        const injuryList = document.getElementById('injury-list');
+        const sleeperToggle = document.getElementById('sleeper-toggle');
+        const sleeperMenu = document.getElementById('sleeper-menu');
+        const sleeperUpload = document.getElementById('sleeper-upload');
+        const leagueFile = document.getElementById('league-file');
+        const sleeperUploadStatus = document.getElementById('sleeper-upload-status');
+        const sleeperResults = document.getElementById('sleeper-results');
         const teamsToggle = document.getElementById('teams-toggle');
         const teamsMenu = document.getElementById('teams-menu');
         const gamesTickerTrack = document.getElementById('sports-ticker-track');
@@ -1670,6 +1901,7 @@
         const NEWS_REFRESH_INTERVAL_MS = 120000;
         const GAMES_REFRESH_INTERVAL_MS = 120000;
         const TRENDING_REFRESH_INTERVAL_MS = 4 * 60 * 60 * 1000;
+        const INJURY_REFRESH_INTERVAL_MS = 60 * 60 * 1000;
         let topNewsMenuCloseTimer = 0;
         let trendingMenuCloseTimer = 0;
         let teamsMenuCloseTimer = 0;
@@ -1677,6 +1909,8 @@
         let topNewsLastUpdatedAt = 0;
         let trendingCache = [];
         let trendingLastUpdatedAt = 0;
+        let injuryCache = [];
+        let injuryLastUpdatedAt = 0;
         let fetchAbortController = null;
         let activeIndex = -1;
         const suggestionCache = new Map();
@@ -1905,6 +2139,90 @@
           });
         }
 
+        function renderInjuryReports(items) {
+          if (!injuryList) {
+            return;
+          }
+
+          if (!Array.isArray(items) || !items.length) {
+            injuryList.innerHTML = '<li class="trending-empty">No current injury reports available.</li>';
+            return;
+          }
+
+          injuryList.innerHTML = items.map((report) => {
+            const name = escapeHtml(report.name || 'Unknown player');
+            const position = escapeHtml(report.position || 'NFL');
+            const team = escapeHtml(report.team || 'NFL');
+            const status = escapeHtml(report.status || 'Injury report');
+            const comment = escapeHtml(report.comment || 'No additional details.');
+            const sourceUrl = escapeHtml(report.source_url || 'https://www.espn.com/nfl/injuries');
+            return `<li class="injury-item"><a class="top-news-link" href="${sourceUrl}" target="_blank" rel="noopener noreferrer">${name} · ${position} · ${team}: ${comment}</a><span class="top-news-source">${status} · ESPN</span></li>`;
+          }).join('');
+        }
+
+        async function loadInjuryReports() {
+          if (!injuryList) {
+            return;
+          }
+
+          const isStale = !injuryLastUpdatedAt || (Date.now() - injuryLastUpdatedAt >= INJURY_REFRESH_INTERVAL_MS);
+          if (!isStale && injuryCache.length) {
+            renderInjuryReports(injuryCache);
+            return;
+          }
+
+          if (!injuryCache.length) {
+            injuryList.innerHTML = '<li class="trending-empty">Loading latest injury reports...</li>';
+          }
+
+          try {
+            const response = await fetch('/injuries', { cache: 'no-store' });
+            if (!response.ok) {
+              throw new Error('injury reports fetch failed');
+            }
+            const items = await response.json();
+            injuryCache = Array.isArray(items) ? items : [];
+            injuryLastUpdatedAt = Date.now();
+            renderInjuryReports(injuryCache);
+          } catch (_error) {
+            renderInjuryReports(injuryCache);
+          }
+        }
+
+        if (injuryToggle && injuryMenu) {
+          let injuryMenuCloseTimer = 0;
+          const openInjuryMenu = () => {
+            window.clearTimeout(injuryMenuCloseTimer);
+            injuryMenu.hidden = false;
+            injuryToggle.setAttribute('aria-expanded', 'true');
+            loadInjuryReports();
+          };
+
+          const closeInjuryMenu = () => {
+            injuryMenu.hidden = true;
+            injuryToggle.setAttribute('aria-expanded', 'false');
+          };
+
+          const scheduleInjuryMenuClose = () => {
+            window.clearTimeout(injuryMenuCloseTimer);
+            injuryMenuCloseTimer = window.setTimeout(closeInjuryMenu, 120);
+          };
+
+          injuryToggle.addEventListener('mouseenter', openInjuryMenu);
+          injuryToggle.addEventListener('focus', openInjuryMenu);
+          injuryMenu.addEventListener('mouseenter', openInjuryMenu);
+          injuryMenu.addEventListener('focusin', openInjuryMenu);
+          injuryToggle.addEventListener('mouseleave', scheduleInjuryMenuClose);
+          injuryMenu.addEventListener('mouseleave', scheduleInjuryMenuClose);
+          injuryToggle.addEventListener('blur', scheduleInjuryMenuClose);
+
+          document.addEventListener('click', (event) => {
+            if (!injuryMenu.contains(event.target) && event.target !== injuryToggle) {
+              closeInjuryMenu();
+            }
+          });
+        }
+
         if (topNewsToggle && topNewsMenu) {
           const openTopNewsMenu = () => {
             window.clearTimeout(topNewsMenuCloseTimer);
@@ -1935,6 +2253,80 @@
           document.addEventListener('click', (event) => {
             if (!topNewsMenu.contains(event.target) && event.target !== topNewsToggle) {
               closeTopNewsMenu();
+            }
+          });
+        }
+
+        function renderSleeperAnalytics(analytics) {
+          if (!sleeperResults) return;
+          const teams = Array.isArray(analytics.teams) ? analytics.teams : [];
+          sleeperResults.innerHTML = `
+            <div class="sleeper-summary">
+              <div class="sleeper-stat"><strong>${escapeHtml(analytics.team_count)}</strong><span>Teams</span></div>
+              <div class="sleeper-stat"><strong>${escapeHtml(analytics.average_points)}</strong><span>Avg points</span></div>
+              <div class="sleeper-stat"><strong>${escapeHtml(analytics.total_points)}</strong><span>Total points</span></div>
+            </div>
+            <div class="top-news-source">${escapeHtml(analytics.league_name)} · ${escapeHtml(analytics.league_id)}</div>
+            <ul class="sleeper-team-list">
+              ${teams.slice(0, 12).map((team, index) => `
+                <li class="sleeper-team">
+                  <span class="sleeper-team-name">${index + 1}. ${escapeHtml(team.name)}</span>
+                  <span class="sleeper-team-meta">${escapeHtml(team.record)} · ${escapeHtml(team.points)} pts</span>
+                  <span class="sleeper-team-detail">${escapeHtml(team.roster_size)} players · ${escapeHtml(team.starters)} starters · ${escapeHtml(team.moves)} moves</span>
+                </li>
+              `).join('')}
+            </ul>
+          `;
+        }
+
+        if (sleeperToggle && sleeperMenu) {
+          let sleeperMenuCloseTimer = 0;
+          const openSleeperMenu = () => {
+            window.clearTimeout(sleeperMenuCloseTimer);
+            sleeperMenu.hidden = false;
+            sleeperToggle.setAttribute('aria-expanded', 'true');
+          };
+
+          const closeSleeperMenu = () => {
+            sleeperMenu.hidden = true;
+            sleeperToggle.setAttribute('aria-expanded', 'false');
+          };
+
+          const scheduleSleeperMenuClose = () => {
+            window.clearTimeout(sleeperMenuCloseTimer);
+            sleeperMenuCloseTimer = window.setTimeout(closeSleeperMenu, 120);
+          };
+
+          sleeperToggle.addEventListener('mouseenter', openSleeperMenu);
+          sleeperToggle.addEventListener('focus', openSleeperMenu);
+          sleeperMenu.addEventListener('mouseenter', openSleeperMenu);
+          sleeperMenu.addEventListener('focusin', openSleeperMenu);
+          sleeperToggle.addEventListener('mouseleave', scheduleSleeperMenuClose);
+          sleeperMenu.addEventListener('mouseleave', scheduleSleeperMenuClose);
+          sleeperToggle.addEventListener('blur', scheduleSleeperMenuClose);
+
+          document.addEventListener('click', (event) => {
+            if (!sleeperMenu.contains(event.target) && event.target !== sleeperToggle) {
+              closeSleeperMenu();
+            }
+          });
+        }
+
+        if (sleeperUpload) {
+          sleeperUpload.addEventListener('submit', async (event) => {
+            event.preventDefault();
+            if (!leagueFile?.files?.length) return;
+            sleeperUploadStatus.textContent = 'Analyzing league with Sleeper...';
+            sleeperResults.innerHTML = '';
+            const formData = new FormData(sleeperUpload);
+            try {
+              const response = await fetch('/sleeper-analytics', { method: 'POST', body: formData });
+              const payload = await response.json();
+              if (!response.ok) throw new Error(payload.error || 'Unable to analyze this league.');
+              renderSleeperAnalytics(payload);
+              sleeperUploadStatus.textContent = 'Analytics updated.';
+            } catch (error) {
+              sleeperUploadStatus.textContent = error.message || 'Unable to analyze this league.';
             }
           });
         }
@@ -2254,7 +2646,7 @@
               {% endfor %}
               <input type="hidden" name="mode" value="{{ compare_mode }}">
               <input type="hidden" name="compare" value="true">
-              <button type="submit" class="compare-action">Compare {{ compare_mode }} <span aria-hidden="true">→</span></button>
+              <button type="submit" class="compare-action">Compare trade <span aria-hidden="true">→</span></button>
             </form>
           {% endif %}
         </div>
@@ -2290,23 +2682,15 @@
       {% if comparison %}
         <div class="layout comparison-layout">
           <div class="panel compact-panel comparison-surface hero-panel">
-            <h2>Draft comparison <span class="comparison-mode">{{ comparison.mode }}</span></h2>
+            <h2>Trade comparison <span class="comparison-mode">Sleeper points</span></h2>
             <div class="summary">
               <div class="stat">
                 <div class="label">Winner</div>
                 <div class="value winner">{{ comparison.winner }}</div>
               </div>
               <div class="stat">
-                <div class="label">Score gap</div>
-                <div class="value">{{ comparison.score_gap }}</div>
-              </div>
-              <div class="stat">
-                <div class="label">Proj. points leader</div>
+                <div class="label">Season points leader</div>
                 <div class="value">{{ comparison.category_winner.projected_points }}</div>
-              </div>
-              <div class="stat">
-                <div class="label">Ceiling leader</div>
-                <div class="value">{{ comparison.category_winner.ceiling }}</div>
               </div>
             </div>
 
@@ -2316,8 +2700,9 @@
                   <tr>
                     <th>Player</th>
                     <th>Position</th>
-                    <th>Proj.</th>
-                    <th>Draft score</th>
+                    <th>Fantasy projected points (per game)</th>
+                    <th>Fantasy projected points (year)</th>
+                    <th>Fantasy position rank</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -2331,8 +2716,9 @@
                       </div>
                     </td>
                     <td><span class="position-badge position-{{ comparison.player_a.position|lower|replace(' ', '-') }}">{{ comparison.player_a.position }}</span></td>
+                    <td>{{ comparison.player_a.projected_points_per_game if comparison.player_a.projected_points_per_game else (comparison.player_a.projected_points / 17)|round(1) }}</td>
                     <td>{{ comparison.player_a.projected_points }}</td>
-                    <td>{{ comparison.player_a.draft_score }}</td>
+                    <td>{% if comparison.player_a.position_rank %}{{ comparison.player_a.position_rank }}{% else %}N/A{% endif %}</td>
                   </tr>
                   <tr>
                     <td>
@@ -2344,12 +2730,14 @@
                       </div>
                     </td>
                     <td><span class="position-badge position-{{ comparison.player_b.position|lower|replace(' ', '-') }}">{{ comparison.player_b.position }}</span></td>
+                    <td>{{ comparison.player_b.projected_points_per_game if comparison.player_b.projected_points_per_game else (comparison.player_b.projected_points / 17)|round(1) }}</td>
                     <td>{{ comparison.player_b.projected_points }}</td>
-                    <td>{{ comparison.player_b.draft_score }}</td>
+                    <td>{% if comparison.player_b.position_rank %}{{ comparison.player_b.position_rank }}{% else %}N/A{% endif %}</td>
                   </tr>
                 </tbody>
               </table>
             </div>
+            <div class="news-refreshed-at">Ranking model: {{ comparison.player_a.projection_source|default('Sleeper projected points', true) }} · {{ comparison.player_b.projection_source|default('Sleeper projected points', true) }}</div>
           </div>
 
           <div class="panel compact-panel comparison-surface chart hero-panel">

@@ -5,6 +5,7 @@ from __future__ import annotations
 import base64
 import importlib
 import io
+import json
 import os
 import re
 import time
@@ -45,12 +46,166 @@ except Exception:  # pragma: no cover - optional package for matchup intel
     fantasyfootball = None
 
 try:
+    from sleeper_wrapper import League as SleeperLeague
     from sleeper_wrapper import Players as SleeperPlayers
+    from sleeper_wrapper import Stats as SleeperStats
 except Exception:  # pragma: no cover - optional package for trending data
+    SleeperLeague = None
     SleeperPlayers = None
+    SleeperStats = None
 
 _SLEEPER_DIRECTORY_CACHE = {"players": {}, "fetched_at": 0}
 _SLEEPER_DIRECTORY_CACHE_TTL = 24 * 60 * 60
+_SLEEPER_PROJECTION_CACHE = {"players": {}, "season": "", "fetched_at": 0}
+_SLEEPER_PROJECTION_CACHE_TTL = 6 * 60 * 60
+
+
+def sleeper_player_positions(player_data: dict) -> set[str]:
+    """Normalize Sleeper's single and multi-position fields for ranking."""
+    positions = player_data.get("fantasy_positions") or player_data.get("positions") or player_data.get("position")
+    if isinstance(positions, str):
+        positions = [positions]
+    if not isinstance(positions, (list, tuple, set)):
+        positions = []
+    return {str(position).strip().upper() for position in positions if position}
+
+
+def sleeper_projected_points(name: str, fallback: float) -> dict:
+    """Return Sleeper half-PPR season and per-game projections for a player."""
+    fallback_points = float(fallback or 0)
+    fallback_per_game = round(fallback_points / 17, 1)
+    result = {
+        "season": round(fallback_points, 1),
+        "per_game": fallback_per_game,
+        "position_rank": None,
+        "source": "App projection",
+    }
+    if SleeperPlayers is None or SleeperStats is None or not name:
+        return result
+
+    try:
+        now = time.time()
+        season = os.getenv("SLEEPER_SEASON", "2026")
+        sleeper_player_profile(name)
+        if (
+            now - _SLEEPER_PROJECTION_CACHE["fetched_at"] >= _SLEEPER_PROJECTION_CACHE_TTL
+            or _SLEEPER_PROJECTION_CACHE["season"] != season
+        ):
+            stats = SleeperStats().get_all_projections("regular", season) or {}
+            _SLEEPER_PROJECTION_CACHE["players"] = stats if isinstance(stats, dict) else {}
+            _SLEEPER_PROJECTION_CACHE["season"] = season
+            _SLEEPER_PROJECTION_CACHE["fetched_at"] = now
+
+        target = _normalize_player_name(name)
+        directory = _SLEEPER_DIRECTORY_CACHE["players"]
+        for player_id, player_data in directory.items():
+            first = str(player_data.get("first_name") or "").strip()
+            last = str(player_data.get("last_name") or "").strip()
+            full_name = _normalize_player_name(str(player_data.get("full_name") or f"{first} {last}"))
+            if full_name != target:
+                continue
+            projection = _SLEEPER_PROJECTION_CACHE["players"].get(str(player_id)) or {}
+            season_points = (
+                projection.get("pts_half_ppr")
+                or projection.get("pts_ppr")
+                or projection.get("pts_std")
+            )
+            if season_points is None or not isinstance(season_points, (int, float)):
+                return result
+            season_points = float(season_points)
+            position = next(iter(sleeper_player_positions(player_data)), "")
+            position_scores = []
+            if position:
+                for candidate_id, candidate_data in directory.items():
+                    candidate_positions = sleeper_player_positions(candidate_data)
+                    candidate_projection = _SLEEPER_PROJECTION_CACHE["players"].get(str(candidate_id)) or {}
+                    candidate_points = (
+                        candidate_projection.get("pts_half_ppr")
+                        or candidate_projection.get("pts_ppr")
+                        or candidate_projection.get("pts_std")
+                    )
+                    if position in candidate_positions and isinstance(candidate_points, (int, float)):
+                        position_scores.append(float(candidate_points))
+            position_scores.sort(reverse=True)
+            position_rank = next(
+                (index for index, points in enumerate(position_scores, start=1) if points <= season_points),
+                None,
+            )
+            games = projection.get("games_played") or projection.get("games") or projection.get("gp")
+            if games:
+                try:
+                    games = max(float(games), 1)
+                except (TypeError, ValueError):
+                    games = None
+            per_game = round(season_points / games, 1) if games else round(season_points / 17, 1)
+            source = f"Sleeper {season} projection" if games else f"Sleeper {season} annual projection / 17"
+            return {
+                "season": round(season_points, 1),
+                "per_game": per_game,
+                "position_rank": position_rank,
+                "source": source,
+            }
+    except Exception:
+        return result
+    return result
+
+
+def build_sleeper_analytics(uploaded_file) -> dict:
+    """Load a Sleeper league JSON export and summarize its teams."""
+    if SleeperLeague is None:
+        raise RuntimeError("The Sleeper data library is not installed.")
+
+    try:
+        payload = json.load(uploaded_file)
+    except (TypeError, ValueError, json.JSONDecodeError) as exc:
+        raise ValueError("Upload a valid Sleeper JSON file.") from exc
+
+    if not isinstance(payload, dict):
+        raise ValueError("The uploaded file must contain a JSON object.")
+
+    league_id = str(payload.get("league_id") or payload.get("leagueId") or "").strip()
+    if not league_id:
+        raise ValueError("Include a Sleeper league_id in the uploaded JSON file.")
+
+    league = SleeperLeague(league_id)
+    league_data = league.get_league() or {}
+    rosters = league.get_rosters() or []
+    users = league.get_users() or []
+    standings = league.get_standings(rosters, users) or []
+    user_names = league.map_users_to_team_name(users)
+
+    teams = []
+    for team_name, wins, losses, points in standings:
+        matching_roster = next(
+            (
+                roster for roster in rosters
+                if user_names.get(roster.get("owner_id")) == team_name
+            ),
+            None,
+        )
+        settings = (matching_roster or {}).get("settings") or {}
+        players = (matching_roster or {}).get("players") or []
+        starters = (matching_roster or {}).get("starters") or []
+        teams.append(
+            {
+                "name": team_name or "Orphaned roster",
+                "record": f"{wins}-{losses}",
+                "points": round(float(points or 0), 2),
+                "roster_size": len(players),
+                "starters": len(starters),
+                "moves": int(settings.get("total_moves") or 0),
+            }
+        )
+
+    teams.sort(key=lambda team: (team["points"], team["name"]), reverse=True)
+    return {
+        "league_name": league_data.get("name") or league.get_league_name() or "Sleeper League",
+        "league_id": league_id,
+        "team_count": len(teams),
+        "total_points": round(sum(team["points"] for team in teams), 2),
+        "average_points": round(sum(team["points"] for team in teams) / len(teams), 2) if teams else 0,
+        "teams": teams,
+    }
 
 
 NFL_TEAMS = [
@@ -493,6 +648,8 @@ _GAMES_CACHE = {"items": [], "fetched_at": 0}
 _GAMES_CACHE_TTL = 2 * 60
 _TRENDING_CACHE = {"items": [], "fetched_at": 0}
 _TRENDING_CACHE_TTL = 4 * 60 * 60
+_INJURY_CACHE = {"items": [], "fetched_at": 0}
+_INJURY_CACHE_TTL = 60 * 60
 
 
 def get_latest_nfl_news(force_refresh: bool = False) -> List[dict]:
@@ -681,6 +838,59 @@ def get_trending_players(force_refresh: bool = False) -> List[dict]:
     _TRENDING_CACHE["items"] = items
     _TRENDING_CACHE["fetched_at"] = now
     return items
+
+
+def get_latest_injury_reports(force_refresh: bool = False) -> List[dict]:
+    """Return the latest league-wide NFL injury reports with one-hour caching."""
+    now = time.time()
+    if not force_refresh and _INJURY_CACHE["items"] and now - _INJURY_CACHE["fetched_at"] < _INJURY_CACHE_TTL:
+        return _INJURY_CACHE["items"]
+
+    try:
+        response = requests.get(
+            "https://site.api.espn.com/apis/site/v2/sports/football/nfl/injuries",
+            timeout=15,
+        )
+        response.raise_for_status()
+        payload = response.json()
+    except Exception:
+        return _INJURY_CACHE["items"] or []
+
+    reports = []
+    for team_group in payload.get("injuries", []):
+        team_name = str(team_group.get("displayName") or team_group.get("name") or "NFL").strip()
+        team_abbr = str(team_group.get("abbreviation") or "").strip().upper()
+        for report in team_group.get("injuries", []):
+            athlete = report.get("athlete") or {}
+            name = str(athlete.get("fullName") or athlete.get("displayName") or "").strip()
+            if not name:
+                continue
+            status = report.get("status")
+            if isinstance(status, dict):
+                status = status.get("displayName") or status.get("name")
+            status = str(status or report.get("designation") or "Injury report").strip()
+            raw_comment = str(report.get("shortComment") or report.get("longComment") or "No additional details.").strip()
+            comment = raw_comment.split(".", 1)[0].strip()
+            if len(comment) > 140:
+                comment = f"{comment[:137].rstrip()}..."
+            reports.append(
+                {
+                    "name": name,
+                    "position": str((athlete.get("position") or {}).get("abbreviation") if isinstance(athlete.get("position"), dict) else athlete.get("position") or "").strip().upper(),
+                    "team": team_abbr or team_name,
+                    "team_name": team_name,
+                    "status": status,
+                    "comment": comment,
+                    "source_url": "https://www.espn.com/nfl/injuries",
+                    "headshot_url": None,
+                    "date": str(report.get("date") or report.get("lastUpdated") or "").strip(),
+                }
+            )
+
+    reports.sort(key=lambda item: item.get("date") or "", reverse=True)
+    _INJURY_CACHE["items"] = reports
+    _INJURY_CACHE["fetched_at"] = now
+    return reports
 
 
 def _fetch_all_active_players(year: int = 2026) -> List[Player]:
@@ -882,18 +1092,19 @@ def player_draft_score(player: Player, mode: str = "redraft") -> float:
 
 
 def compare_players(player_a: Player, player_b: Player, mode: str = "redraft") -> dict:
-    """Compare two players using the selected fantasy format."""
+    """Compare two players using Sleeper projected fantasy points."""
     mode = mode if mode in {"redraft", "dynasty"} else "redraft"
-    a_score = player_draft_score(player_a, mode)
-    b_score = player_draft_score(player_b, mode)
-    winner = player_a if a_score >= b_score else player_b
+    a_projection = sleeper_projected_points(player_a.name, player_a.projected_points)
+    b_projection = sleeper_projected_points(player_b.name, player_b.projected_points)
+    a_projected_points = a_projection["season"]
+    b_projected_points = b_projection["season"]
+    winner = player_a if a_projected_points >= b_projected_points else player_b
 
     return {
         "mode": mode,
         "winner": winner.name,
-        "score_gap": round(abs(a_score - b_score), 2),
         "category_winner": {
-            "projected_points": player_a.name if player_a.projected_points >= player_b.projected_points else player_b.name,
+            "projected_points": player_a.name if a_projected_points >= b_projected_points else player_b.name,
             "floor": player_a.name if player_a.floor >= player_b.floor else player_b.name,
             "ceiling": player_a.name if player_a.ceiling >= player_b.ceiling else player_b.name,
             "draft_score": winner.name,
@@ -901,15 +1112,21 @@ def compare_players(player_a: Player, player_b: Player, mode: str = "redraft") -
         "player_a": {
             "name": player_a.name,
             "position": player_a.position,
-            "projected_points": player_a.projected_points,
-            "draft_score": a_score,
+            "projected_points": a_projection["season"],
+            "projected_points_per_game": a_projection["per_game"],
+            "position_rank": a_projection["position_rank"],
+            "draft_score": player_draft_score(player_a, mode),
+            "projection_source": a_projection["source"],
             "headshot_url": player_a.headshot_url,
         },
         "player_b": {
             "name": player_b.name,
             "position": player_b.position,
-            "projected_points": player_b.projected_points,
-            "draft_score": b_score,
+            "projected_points": b_projection["season"],
+            "projected_points_per_game": b_projection["per_game"],
+            "position_rank": b_projection["position_rank"],
+            "draft_score": player_draft_score(player_b, mode),
+            "projection_source": b_projection["source"],
             "headshot_url": player_b.headshot_url,
         },
     }
@@ -1223,6 +1440,16 @@ def create_app() -> Flask:
         force_refresh = refresh_value in {"1", "true", "yes", "y", "on"}
         return jsonify(get_latest_nfl_news(force_refresh=force_refresh))
 
+    @app.route("/sleeper-analytics", methods=["POST"])
+    def sleeper_analytics():
+        uploaded_file = request.files.get("league_file")
+        if uploaded_file is None or not uploaded_file.filename:
+            return jsonify({"error": "Choose a Sleeper JSON file first."}), 400
+        try:
+            return jsonify(build_sleeper_analytics(uploaded_file))
+        except (RuntimeError, ValueError, KeyError, TypeError) as exc:
+            return jsonify({"error": str(exc)}), 400
+
     @app.route("/games", methods=["GET"])
     def games():
         refresh_value = (request.args.get("refresh") or "").strip().lower()
@@ -1234,6 +1461,12 @@ def create_app() -> Flask:
         refresh_value = (request.args.get("refresh") or "").strip().lower()
         force_refresh = refresh_value in {"1", "true", "yes", "y", "on"}
         return jsonify(get_trending_players(force_refresh=force_refresh))
+
+    @app.route("/injuries", methods=["GET"])
+    def injuries():
+        refresh_value = (request.args.get("refresh") or "").strip().lower()
+        force_refresh = refresh_value in {"1", "true", "yes", "y", "on"}
+        return jsonify(get_latest_injury_reports(force_refresh=force_refresh))
 
     # Force template to reload from disk on every request
     @app.before_request

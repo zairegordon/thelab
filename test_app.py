@@ -1,4 +1,65 @@
+from io import BytesIO
+
 from app import compare_players, create_app, get_default_players, player_draft_score, player_from_espn_record, search_active_players
+
+
+def test_sleeper_analytics_upload_uses_league_wrapper(monkeypatch):
+    class FakeLeague:
+        def __init__(self, league_id):
+            assert league_id == "123"
+
+        def get_league(self):
+            return {"name": "Test League"}
+
+        def get_rosters(self):
+            return [{
+                "owner_id": "u1",
+                "players": ["p1", "p2"],
+                "starters": ["p1"],
+                "settings": {"wins": 3, "losses": 1, "fpts": 100.5, "total_moves": 4},
+            }]
+
+        def get_users(self):
+            return [{"user_id": "u1"}]
+
+        def map_users_to_team_name(self, users):
+            return {"u1": "Team One"}
+
+        def get_standings(self, rosters, users):
+            return [("Team One", "3", "1", "100.5")]
+
+        def get_league_name(self):
+            return "Test League"
+
+    monkeypatch.setattr("app.SleeperLeague", FakeLeague)
+    response = create_app().test_client().post(
+        "/sleeper-analytics",
+        data={"league_file": (BytesIO(b'{"league_id":"123"}'), "league.json")},
+        content_type="multipart/form-data",
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["teams"][0]["name"] == "Team One"
+
+
+def test_trade_comparison_exposes_point_calculations(monkeypatch):
+    projections = {
+        "George Pickens": {"season": 220.0, "per_game": 14.7, "position_rank": 18, "source": "Sleeper 2026 projection"},
+        "CeeDee Lamb": {"season": 290.0, "per_game": 19.3, "position_rank": 2, "source": "Sleeper 2026 projection"},
+    }
+    monkeypatch.setattr("app.sleeper_projected_points", lambda name, fallback: projections[name])
+    players = get_default_players()
+    player_a = next(player for player in players if player.name == "CeeDee Lamb")
+    player_b = players[0]
+    player_b.name = "George Pickens"
+
+    comparison = compare_players(player_a, player_b)
+
+    assert comparison["winner"] == "CeeDee Lamb"
+    assert comparison["player_a"]["projected_points"] == 290.0
+    assert comparison["player_b"]["projected_points_per_game"] == 14.7
+    assert comparison["player_a"]["position_rank"] == 2
+    assert comparison["player_b"]["position_rank"] == 18
 
 
 def test_search_page_shows_selection_surface_without_results_section():
