@@ -97,7 +97,8 @@
 
       .top-links {
         display: flex;
-        gap: 14px;
+        gap: 6px;
+        justify-content: flex-start;
         font-size: 11px;
         text-transform: uppercase;
         letter-spacing: 0.09em;
@@ -115,6 +116,7 @@
         font: inherit;
         text-transform: inherit;
         letter-spacing: inherit;
+        text-decoration: none;
         transition: background 0.2s ease;
         cursor: pointer;
       }
@@ -129,9 +131,18 @@
         z-index: 230;
       }
 
+      #search-player-link {
+        display: block;
+      }
+
       .top-link-group:hover .teams-menu,
       .top-link-group:focus-within .teams-menu {
         display: grid;
+      }
+
+      .top-link-group:hover .donate-menu,
+      .top-link-group:focus-within .donate-menu {
+        display: block;
       }
 
       .top-links span:hover,
@@ -517,6 +528,51 @@
         display: none;
       }
 
+      .donate-menu {
+        right: 0;
+        left: auto;
+        transform: none;
+        width: min(270px, calc(100vw - 28px));
+        padding: 12px;
+      }
+
+      .donate-copy {
+        margin: 0 0 10px;
+        color: #b9b9b9;
+        font-size: 10px;
+        line-height: 1.4;
+      }
+
+      .donate-title {
+        margin-bottom: 4px;
+        color: var(--accent);
+        font-family: "Teko", sans-serif;
+        font-size: 20px;
+        letter-spacing: 0.08em;
+        text-transform: uppercase;
+      }
+
+      .donate-options {
+        display: grid;
+        grid-template-columns: repeat(3, 1fr);
+        gap: 6px;
+      }
+
+      .donate-option {
+        padding: 7px 5px;
+        border: 1px solid rgba(57, 255, 20, 0.18);
+        border-radius: 7px;
+        background: rgba(57, 255, 20, 0.04);
+        color: #efefef;
+        font-size: 10px;
+        text-align: center;
+      }
+
+      .donate-option:hover {
+        background: rgba(57, 255, 20, 0.14);
+        color: var(--accent);
+      }
+
       .teams-menu a {
         display: flex;
         flex-direction: column;
@@ -579,20 +635,29 @@
       .sports-ticker {
         margin: 0;
         border: 1px solid rgba(57, 255, 20, 0.16);
-        border-radius: 10px;
+        border-radius: 7px;
         background: linear-gradient(90deg, rgba(9, 9, 9, 0.95), rgba(7, 7, 7, 0.95));
         overflow: hidden;
         position: relative;
+      }
+
+      .overview-grid > .sports-ticker {
+        display: none;
+      }
+
+      .container:has(#team-roster) > .controls.hero-surface,
+      .container:has(#team-roster) > .overview-grid {
+        display: none;
       }
 
       .sports-ticker-header {
         display: flex;
         align-items: center;
         justify-content: space-between;
-        gap: 8px;
-        padding: 6px 10px;
+        gap: 6px;
+        padding: 3px 8px;
         border-bottom: 1px solid rgba(57, 255, 20, 0.1);
-        font-size: 9px;
+        font-size: 8px;
         letter-spacing: 0.1em;
         text-transform: uppercase;
       }
@@ -614,8 +679,8 @@
       .sports-ticker-track {
         display: flex;
         align-items: center;
-        gap: 20px;
-        padding: 8px 10px;
+        gap: 14px;
+        padding: 4px 8px;
         width: max-content;
         animation: ticker-glide 72s linear infinite;
       }
@@ -627,22 +692,22 @@
       .sports-ticker-item {
         display: inline-flex;
         align-items: center;
-        gap: 6px;
+        gap: 5px;
         white-space: nowrap;
-        font-size: 11px;
+        font-size: 10px;
         color: #e7e7e7;
       }
 
       .sports-ticker-item strong {
         color: #39ff14;
         font-family: "Teko", sans-serif;
-        font-size: 14px;
+        font-size: 12px;
         letter-spacing: 0.05em;
       }
 
       .sports-ticker-dot {
-        width: 5px;
-        height: 5px;
+        width: 4px;
+        height: 4px;
         border-radius: 50%;
         background: rgba(57, 255, 20, 0.72);
         flex-shrink: 0;
@@ -1284,6 +1349,35 @@
         margin-top: 8px;
       }
 
+      .roster-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 6px;
+        margin-top: 10px;
+      }
+
+      .roster-filter {
+        min-width: 34px;
+        padding: 5px 8px;
+        border: 1px solid var(--filter-color, rgba(255, 255, 255, 0.28));
+        border-radius: 999px;
+        background: transparent;
+        color: var(--filter-color, #d9d9d9);
+        font: inherit;
+        font-size: 10px;
+        font-weight: 700;
+        letter-spacing: 0.08em;
+        line-height: 1;
+        text-transform: uppercase;
+        cursor: pointer;
+      }
+
+      .roster-filter[aria-pressed="true"] {
+        background: var(--filter-color, #d9d9d9);
+        color: #050505;
+      }
+
       .roster-card {
         position: relative;
         border: 1px solid rgba(57, 255, 20, 0.14);
@@ -1308,7 +1402,7 @@
         left: 0;
         width: 100%;
         height: 3px;
-        background: linear-gradient(90deg, var(--accent), var(--accent-lime-soft), #ffffff);
+        background: linear-gradient(90deg, var(--position-color, var(--accent)), var(--accent-lime-soft), #ffffff);
       }
 
       .roster-meta {
@@ -1633,7 +1727,7 @@
 
         .top-links {
           width: 100%;
-          justify-content: space-between;
+          justify-content: flex-start;
           gap: 6px;
           font-size: 10px;
         }
@@ -1772,6 +1866,15 @@
   <body>
     <div class="container">
       <div class="topbar">
+        <div class="sports-ticker" aria-label="Upcoming games">
+          <div class="sports-ticker-header">
+            <span class="sports-ticker-title">Upcoming Games</span>
+            <span id="sports-ticker-status" class="sports-ticker-status">Loading schedule...</span>
+          </div>
+          <div class="sports-ticker-viewport">
+            <div id="sports-ticker-track" class="sports-ticker-track" aria-live="polite"></div>
+          </div>
+        </div>
         <div class="topbar-main">
           <div>
             <div class="brand"><span>The</span> Lab</div>
@@ -1785,6 +1888,9 @@
                   <li class="trending-empty">Hover to load trending players...</li>
                 </ul>
               </div>
+            </div>
+            <div class="top-news-group">
+              <a href="/" id="search-player-link" class="top-link-button">Search Player</a>
             </div>
             <div class="top-news-group injury-group">
               <button type="button" id="injury-toggle" class="top-link-button" aria-expanded="false" aria-controls="injury-menu">Injury Report</button>
@@ -1832,20 +1938,21 @@
                 </div>
               </div>
             </div>
+            <div class="top-link-group">
+              <button type="button" id="donate-toggle" class="top-link-button" aria-expanded="false" aria-controls="donate-menu">Donate</button>
+              <div id="donate-menu" class="top-news-menu donate-menu" hidden>
+                <div class="donate-title">Support The Lab</div>
+                <p class="donate-copy">Help keep the fantasy tools, data, and matchup intelligence running.</p>
+                <div class="donate-options" aria-label="Donation amounts">
+                  <span class="donate-option">$5</span>
+                  <span class="donate-option">$10</span>
+                  <span class="donate-option">$25</span>
+                </div>
+              </div>
+            </div>
           </div>
         </div>
 
-        <section class="sports-ticker" aria-label="Upcoming NFL games ticker">
-          <div class="sports-ticker-header">
-            <span class="sports-ticker-title">Upcoming NFL Games</span>
-            <span id="sports-ticker-status" class="sports-ticker-status">Loading schedule...</span>
-          </div>
-          <div class="sports-ticker-viewport">
-            <div id="sports-ticker-track" class="sports-ticker-track static">
-              <span class="sports-ticker-item">Loading upcoming games...</span>
-            </div>
-          </div>
-        </section>
       </div>
 
       <form method="GET" class="controls hero-surface search-surface">
@@ -1873,6 +1980,34 @@
         </div>
       </section>
 
+      {% if selected_team %}
+        <section class="panel compact-panel hero-panel" aria-labelledby="team-roster-title">
+          <div style="display:flex; align-items:baseline; justify-content:space-between; gap:12px; position:relative; z-index:1;">
+            <h2 id="team-roster-title">{{ result_title }}</h2>
+            <span id="roster-player-count" class="selection-count">{{ players|length }} players</span>
+          </div>
+          <div id="roster-position-filters" class="roster-toolbar" role="toolbar" aria-label="Filter roster by position"></div>
+          <div id="team-roster" class="roster-grid">
+            {% for player in players %}
+              <article class="roster-card" data-position="{{ player.position }}">
+                <div class="player-row">
+                  {% if player.headshot_url %}
+                    <img src="{{ player.headshot_url }}" alt="{{ player.name }} headshot" class="player-avatar" loading="lazy">
+                  {% endif %}
+                  <strong>{{ player.name }}</strong>
+                </div>
+                <div class="roster-meta">
+                  <span class="position-badge position-{{ player.position|lower|replace(' ', '-') }}">{{ player.position }}</span>
+                  <span class="roster-chip">{{ player.team }}</span>
+                </div>
+              </article>
+            {% else %}
+              <div class="selection-empty">The current 2026 roster is not available yet. Please try again shortly.</div>
+            {% endfor %}
+          </div>
+        </section>
+      {% endif %}
+
       <!-- Body-level dropdown: outside all clipping containers, renders above banner -->
       <div id="player-suggestions" class="suggestions" hidden role="listbox" aria-label="Player suggestions"></div>
 
@@ -1896,6 +2031,9 @@
         const sleeperResults = document.getElementById('sleeper-results');
         const teamsToggle = document.getElementById('teams-toggle');
         const teamsMenu = document.getElementById('teams-menu');
+        const rosterFilters = document.getElementById('roster-position-filters');
+        const rosterCards = Array.from(document.querySelectorAll('#team-roster .roster-card'));
+        const rosterPlayerCount = document.getElementById('roster-player-count');
         const gamesTickerTrack = document.getElementById('sports-ticker-track');
         const gamesTickerStatus = document.getElementById('sports-ticker-status');
         const NEWS_REFRESH_INTERVAL_MS = 120000;
@@ -1917,6 +2055,62 @@
         let lastQuery = '';
         let serverReachable = true;
         let serverCheckBackoff = 5000;
+
+        function rosterPositionColor(position) {
+          const colors = {
+            QB: '#67e8f9', RB: '#fb923c', WR: '#f472b6', TE: '#c084fc',
+            C: '#facc15', G: '#facc15', OG: '#facc15', OT: '#facc15', OL: '#facc15',
+            DE: '#f87171', DT: '#f87171', DL: '#f87171', LB: '#a3e635',
+            CB: '#2dd4bf', S: '#2dd4bf', DB: '#2dd4bf', K: '#60a5fa',
+            P: '#60a5fa', LS: '#fda4af', FLEX: '#facc15'
+          };
+          return colors[position] || '#d9d9d9';
+        }
+
+        function initializeRosterFilters() {
+          if (!rosterFilters || !rosterCards.length) return;
+
+          const positions = [...new Set(rosterCards.map((card) => card.dataset.position).filter(Boolean))]
+            .sort((first, second) => first.localeCompare(second));
+          const filterPositions = ['ALL', ...positions];
+
+          rosterCards.forEach((card) => {
+            const color = rosterPositionColor(card.dataset.position);
+            card.style.setProperty('--position-color', color);
+            const badge = card.querySelector('.position-badge');
+            if (badge) {
+              badge.style.color = color;
+              badge.style.backgroundColor = `${color}24`;
+            }
+          });
+
+          const applyFilter = (position) => {
+            let visibleCount = 0;
+            rosterCards.forEach((card) => {
+              const visible = position === 'ALL' || card.dataset.position === position;
+              card.hidden = !visible;
+              if (visible) visibleCount += 1;
+            });
+            rosterPlayerCount.textContent = `${visibleCount} player${visibleCount === 1 ? '' : 's'}`;
+            rosterFilters.querySelectorAll('.roster-filter').forEach((button) => {
+              button.setAttribute('aria-pressed', String(button.dataset.position === position));
+            });
+          };
+
+          filterPositions.forEach((position) => {
+            const button = document.createElement('button');
+            button.type = 'button';
+            button.className = 'roster-filter';
+            button.dataset.position = position;
+            button.textContent = position === 'ALL' ? 'All' : position;
+            button.style.setProperty('--filter-color', position === 'ALL' ? '#39ff14' : rosterPositionColor(position));
+            button.setAttribute('aria-pressed', String(position === 'ALL'));
+            button.addEventListener('click', () => applyFilter(position));
+            rosterFilters.appendChild(button);
+          });
+        }
+
+        initializeRosterFilters();
 
         async function checkServer() {
           try {
@@ -2677,6 +2871,18 @@
             </div>
           </div>
         </div>
+
+        <section class="sports-ticker" aria-label="Upcoming NFL games ticker">
+          <div class="sports-ticker-header">
+            <span class="sports-ticker-title">Upcoming NFL Games</span>
+            <span id="sports-ticker-status" class="sports-ticker-status">Loading schedule...</span>
+          </div>
+          <div class="sports-ticker-viewport">
+            <div id="sports-ticker-track" class="sports-ticker-track static">
+              <span class="sports-ticker-item">Loading upcoming games...</span>
+            </div>
+          </div>
+        </section>
       </div>
 
       {% if comparison %}

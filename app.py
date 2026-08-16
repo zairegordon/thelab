@@ -11,7 +11,7 @@ import re
 import time
 import unicodedata
 from dataclasses import dataclass
-from datetime import datetime, timedelta
+from datetime import datetime, timedelta, timezone
 from typing import Dict, List, Optional
 
 import requests
@@ -641,6 +641,8 @@ def _normalize_roster_value(value, fallback="FLEX") -> str:
 
 _ROSTER_CACHE = {"players": [], "fetched_at": 0}
 _ROSTER_CACHE_TTL = 60 * 60
+_TEAM_ROSTER_CACHE = {}
+_TEAM_ROSTER_CACHE_TTL = 5 * 60
 _PLAYER_SEARCH_CACHE: Dict[str, List[Player]] = {}
 _NEWS_CACHE = {"items": [], "fetched_at": 0}
 _NEWS_CACHE_TTL = 2 * 60
@@ -841,8 +843,9 @@ def get_trending_players(force_refresh: bool = False) -> List[dict]:
 
 
 def get_latest_injury_reports(force_refresh: bool = False) -> List[dict]:
-    """Return the latest league-wide NFL injury reports with one-hour caching."""
+    """Return only league-wide injury reports published or updated in 24 hours."""
     now = time.time()
+    cutoff = now - (24 * 60 * 60)
     if not force_refresh and _INJURY_CACHE["items"] and now - _INJURY_CACHE["fetched_at"] < _INJURY_CACHE_TTL:
         return _INJURY_CACHE["items"]
 
@@ -861,6 +864,17 @@ def get_latest_injury_reports(force_refresh: bool = False) -> List[dict]:
         team_name = str(team_group.get("displayName") or team_group.get("name") or "NFL").strip()
         team_abbr = str(team_group.get("abbreviation") or "").strip().upper()
         for report in team_group.get("injuries", []):
+            raw_date = report.get("date") or report.get("lastUpdated") or report.get("published")
+            if isinstance(raw_date, (int, float)):
+                report_timestamp = raw_date / 1000 if raw_date > 10_000_000_000 else raw_date
+            else:
+                try:
+                    normalized_date = str(raw_date or "").strip().replace("Z", "+00:00")
+                    report_timestamp = datetime.fromisoformat(normalized_date).replace(tzinfo=timezone.utc).timestamp()
+                except (TypeError, ValueError, OverflowError):
+                    continue
+            if report_timestamp < cutoff or report_timestamp > now + 300:
+                continue
             athlete = report.get("athlete") or {}
             name = str(athlete.get("fullName") or athlete.get("displayName") or "").strip()
             if not name:
@@ -883,7 +897,7 @@ def get_latest_injury_reports(force_refresh: bool = False) -> List[dict]:
                     "comment": comment,
                     "source_url": "https://www.espn.com/nfl/injuries",
                     "headshot_url": None,
-                    "date": str(report.get("date") or report.get("lastUpdated") or "").strip(),
+                    "date": datetime.fromtimestamp(report_timestamp, timezone.utc).isoformat(),
                 }
             )
 
@@ -1021,13 +1035,67 @@ def search_active_players(query: str, year: int = 2026) -> List[Player]:
 
 
 def get_team_roster(team_code: str, year: int = 2026) -> List[Player]:
-    """Return active roster players for a selected NFL team."""
+    """Fetch the selected team's freshest ESPN roster for the requested season."""
     normalized_team = (team_code or "").strip().upper()
     if not normalized_team:
         return []
 
-    players = [player for player in get_cached_active_players(year) if player.team.upper() == normalized_team]
+    now = time.time()
+    cached = _TEAM_ROSTER_CACHE.get(normalized_team)
+    if cached and now - cached["fetched_at"] < _TEAM_ROSTER_CACHE_TTL:
+        return cached["players"]
+
+    players = []
+    try:
+        teams_response = requests.get(
+            "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams",
+            params={"season": year},
+            headers={"Cache-Control": "no-cache"},
+            timeout=15,
+        )
+        teams_response.raise_for_status()
+        teams_payload = teams_response.json()
+        team_id = None
+        for sport in teams_payload.get("sports", []):
+            for league in sport.get("leagues", []):
+                for entry in league.get("teams", []):
+                    team = entry.get("team", {})
+                    abbreviation = str(team.get("abbreviation") or "").upper()
+                    if abbreviation == normalized_team:
+                        team_id = team.get("id")
+                        break
+                if team_id:
+                    break
+            if team_id:
+                break
+
+        if team_id:
+            roster_response = requests.get(
+                f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{team_id}/roster",
+                params={"season": year},
+                headers={"Cache-Control": "no-cache"},
+                timeout=15,
+            )
+            roster_response.raise_for_status()
+            roster_payload = roster_response.json()
+            projected_by_position = {"QB": 265.0, "RB": 165.0, "WR": 150.0, "TE": 120.0, "K": 95.0, "DST": 90.0, "FLEX": 135.0}
+            for athlete_group in roster_payload.get("athletes", []):
+                for item in athlete_group.get("items", []):
+                    name = str(item.get("fullName") or item.get("displayName") or "").strip()
+                    if not name:
+                        continue
+                    position = _normalize_roster_value(item.get("displayPosition") or item.get("position"), "FLEX").upper()
+                    projected = projected_by_position.get(position, 120.0)
+                    headshot = item.get("headshot") or {}
+                    headshot_url = headshot.get("href") if isinstance(headshot, dict) else None
+                    players.append(Player(name=name, position=position, team=normalized_team, projected_points=projected, floor=round(projected * 0.75, 1), ceiling=round(projected * 1.25, 1), bye_week=0, risk="medium", headshot_url=_normalize_headshot_url(headshot_url) or resolve_headshot_url(name)))
+    except Exception:
+        players = []
+
+    if not players:
+        players = [player for player in get_cached_active_players(year) if player.team.upper() == normalized_team]
     players.sort(key=lambda player: (player.position, player.name))
+    _TEAM_ROSTER_CACHE[normalized_team] = {"players": players, "fetched_at": now}
     return players
 
 
