@@ -4,3 +4,4 @@ matplotlib>=3.8.0
 requests>=2.31.0
 ff_espn-api>=1.1.9
 sleeper-api-wrapper>=1.2.1
+playwright>=1.50.0

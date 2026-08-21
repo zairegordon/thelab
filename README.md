@@ -4,10 +4,6 @@ A lightweight fantasy football draft helper that makes it easy to compare player
 
 ## Features
 
-- Compare two players side by side
-- Evaluate projected fantasy points, floor, ceiling, and risk
-- Highlight which player has the stronger draft value
-- Use built-in player data for quick comparisons
 
 ## Run the app
 
@@ -29,4 +25,26 @@ ENABLE_OPTIONAL_PLAYER_DATA=1
 
 ```bash
 pytest
+```
+
+Browser UI tests
+
+Install the Playwright browser once after installing the requirements:
+
+```bash
+python -m playwright install chromium
+```
+
+Run the full test suite, including the browser UI tests:
+
+```bash
+pytest
+```
+
+For a reliable full-suite report, use the project runner. It saves the complete
+pytest output under `test-reports/` and prints `PYTEST_EXIT_CODE`:
+
+```powershell
+$env:PLAYWRIGHT_HEADED = "1"
+.\.venv\Scripts\python.exe .\run_test_suite.py
 ```

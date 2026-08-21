@@ -2,6 +2,7 @@
 <html lang="en">
   <head>
     <meta charset="utf-8">
+    <meta name="app-build" content="2026-08-20-chart-refresh" data-app-build="2026-08-20-chart-refresh">
     <title>The Lab</title>
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -56,83 +57,93 @@
         display: flex;
         flex-direction: column;
         align-items: stretch;
-        gap: 10px;
-        padding: 14px 18px;
-        border: 1px solid rgba(57, 255, 20, 0.26);
-        border-radius: 20px;
-        background: linear-gradient(90deg, rgba(8, 8, 8, 0.92) 0%, rgba(6, 6, 6, 0.92) 56%, rgba(14, 14, 14, 0.92) 100%);
+        gap: 16px;
+        padding: 8px 18px 10px;
+        border: 1px solid rgba(57, 255, 20, 0.4);
+        border-radius: 12px;
+        background: linear-gradient(180deg, rgba(8, 11, 9, 0.96), rgba(4, 6, 5, 0.98));
         backdrop-filter: blur(8px);
         margin-bottom: 18px;
-        box-shadow: inset 0 0 0 1px rgba(57, 255, 20, 0.08), 0 14px 26px rgba(0, 0, 0, 0.4);
+        box-shadow: inset 0 0 0 1px rgba(57, 255, 20, 0.06), 0 14px 24px rgba(0, 0, 0, 0.38);
       }
 
       .topbar-main {
         display: flex;
         justify-content: space-between;
-        align-items: center;
-        gap: 10px;
+        align-items: flex-end;
+        gap: 18px;
         width: 100%;
       }
 
       .brand {
         font-family: "Teko", sans-serif;
         font-weight: 700;
-        letter-spacing: 0.09em;
+        letter-spacing: 0.02em;
         text-transform: uppercase;
-        font-size: clamp(28px, 3vw, 34px);
-        line-height: 1;
+        font-size: clamp(46px, 4vw, 70px);
+        line-height: 0.68;
+        color: #f4f4f4;
+        text-shadow: none;
       }
 
       .brand span {
         color: var(--accent);
-        text-shadow: 0 0 6px rgba(57, 255, 20, 0.9), 0 0 16px rgba(57, 255, 20, 0.55);
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.8), 0 0 18px rgba(57, 255, 20, 0.5);
       }
 
       .subhead {
-        color: var(--muted);
-        font-size: 11px;
-        letter-spacing: 0.14em;
+        color: rgba(255, 255, 255, 0.85);
+        font-size: 9px;
+        letter-spacing: 0.18em;
         text-transform: uppercase;
+        margin-top: 2px;
       }
 
       .top-links {
         display: flex;
-        gap: 6px;
-        justify-content: flex-start;
-        font-size: 11px;
+        flex-wrap: wrap;
+        gap: 0 14px;
+        justify-content: flex-end;
+        font-size: 10px;
         text-transform: uppercase;
-        letter-spacing: 0.09em;
+        letter-spacing: 0.13em;
         align-items: center;
+        padding-bottom: 4px;
       }
 
       .top-links span,
       .top-link-button {
-        color: #e7e7e7;
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        min-height: 18px;
+        color: #f2f2f2;
         position: relative;
-        padding: 4px 6px;
-        border-radius: 999px;
+        padding: 0;
+        border-radius: 0;
         background: transparent;
         border: none;
         font: inherit;
+        font-weight: 700;
         text-transform: inherit;
         letter-spacing: inherit;
         text-decoration: none;
-        transition: background 0.2s ease;
+        transition: color 0.2s ease, text-shadow 0.2s ease;
         cursor: pointer;
+        line-height: 1.1;
+        white-space: nowrap;
       }
 
-      .top-link-group {
-        position: relative;
-        z-index: 220;
-      }
-
+      .top-link-group,
       .top-news-group {
         position: relative;
-        z-index: 230;
+        z-index: 220;
+        display: flex;
+        align-items: center;
       }
 
       #search-player-link {
-        display: block;
+        display: inline-flex;
       }
 
       .top-link-group:hover .teams-menu,
@@ -148,7 +159,9 @@
       .top-links span:hover,
       .top-link-button:hover,
       .top-link-button[aria-expanded="true"] {
-        background: rgba(57, 255, 20, 0.11);
+        background: transparent;
+        color: var(--accent);
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.5);
       }
 
       .top-news-menu {
@@ -299,8 +312,7 @@
       }
 
       .trending-item {
-        display: grid;
-        grid-template-columns: 20px 30px minmax(0, 1fr) auto;
+        display: flex;
         align-items: center;
         gap: 7px;
         min-height: 38px;
@@ -311,6 +323,7 @@
       }
 
       .trending-rank {
+        flex: 0 0 20px;
         color: var(--accent);
         font-family: "Teko", sans-serif;
         font-size: 18px;
@@ -319,6 +332,10 @@
       }
 
       .trending-avatar {
+        position: relative;
+        z-index: 1;
+        display: block;
+        flex: 0 0 30px;
         width: 30px;
         height: 30px;
         border-radius: 50%;
@@ -328,12 +345,17 @@
       }
 
       .trending-name {
+        position: relative;
+        z-index: 0;
+        flex: 1 1 auto;
         min-width: 0;
-        overflow-wrap: anywhere;
+        overflow: hidden;
         color: #efefef;
         font-size: 11px;
         font-weight: 700;
         line-height: 1.15;
+        text-overflow: ellipsis;
+        white-space: nowrap;
       }
 
       .trending-meta {
@@ -634,11 +656,70 @@
 
       .sports-ticker {
         margin: 0;
-        border: 1px solid rgba(57, 255, 20, 0.16);
-        border-radius: 7px;
-        background: linear-gradient(90deg, rgba(9, 9, 9, 0.95), rgba(7, 7, 7, 0.95));
+        border: 1px solid rgba(57, 255, 20, 0.14);
+        border-radius: 6px;
+        background: linear-gradient(90deg, rgba(9, 9, 9, 0.9), rgba(7, 7, 7, 0.9));
         overflow: hidden;
         position: relative;
+      }
+
+      .sports-ticker-header {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 6px;
+        padding: 2px 8px;
+        border-bottom: 1px solid rgba(57, 255, 20, 0.08);
+        font-size: 7px;
+        letter-spacing: 0.12em;
+        text-transform: uppercase;
+      }
+
+      .sports-ticker-title {
+        color: var(--accent);
+        font-weight: 700;
+      }
+
+      .sports-ticker-status {
+        color: #b9b9b9;
+      }
+
+      .sports-ticker-viewport {
+        overflow: hidden;
+        width: 100%;
+      }
+
+      .sports-ticker-track {
+        display: flex;
+        align-items: center;
+        gap: 10px;
+        padding: 3px 8px;
+        width: max-content;
+        animation: ticker-glide 72s linear infinite;
+      }
+
+      .sports-ticker-item {
+        display: inline-flex;
+        align-items: center;
+        gap: 5px;
+        white-space: nowrap;
+        font-size: 9px;
+        color: #e7e7e7;
+      }
+
+      .sports-ticker-item strong {
+        color: #39ff14;
+        font-family: "Teko", sans-serif;
+        font-size: 10px;
+        letter-spacing: 0.04em;
+      }
+
+      .sports-ticker-dot {
+        width: 3px;
+        height: 3px;
+        border-radius: 50%;
+        background: rgba(57, 255, 20, 0.7);
+        flex-shrink: 0;
       }
 
       .overview-grid > .sports-ticker {
@@ -733,7 +814,7 @@
       }
 
       .hero-copy {
-        padding: 24px;
+        padding: 18px 18px 14px;
         position: relative;
         overflow: hidden;
       }
@@ -753,16 +834,16 @@
         margin: 0;
         font-family: "Teko", sans-serif;
         text-transform: uppercase;
-        letter-spacing: 0.08em;
-        font-size: clamp(42px, 6vw, 80px);
-        line-height: 0.88;
+        letter-spacing: 0.04em;
+        font-size: clamp(42px, 5.5vw, 76px);
+        line-height: 0.82;
       }
 
       .hero-kicker {
-        margin: 0 0 12px;
+        margin: 0 0 8px;
         color: #d3d3d3;
-        letter-spacing: 0.2em;
-        font-size: 10px;
+        letter-spacing: 0.18em;
+        font-size: 11px;
         font-weight: 700;
         text-transform: uppercase;
       }
@@ -770,15 +851,15 @@
       .hero-title strong {
         color: var(--accent);
         font-weight: 700;
-        text-shadow: 0 0 8px rgba(57, 255, 20, 0.16);
+        text-shadow: 0 0 10px rgba(57, 255, 20, 0.38);
       }
 
       .hero-copy p {
-        margin: 14px 0 0;
-        max-width: 52ch;
+        margin: 12px 0 0;
+        max-width: 46ch;
         color: #d7d7d7;
-        font-size: 14px;
-        line-height: 1.62;
+        font-size: 13px;
+        line-height: 1.5;
       }
 
       .hero-card {
@@ -914,14 +995,14 @@
       }
 
       .controls {
-        display: flex;
-        justify-content: space-between;
+        display: grid;
+        grid-template-columns: minmax(0, 1fr) auto;
         align-items: end;
         gap: 12px;
-        flex-wrap: wrap;
-        margin-bottom: 22px;
-        width: min(680px, 100%);
-        padding: 10px 12px;
+        margin: 0 0 18px;
+        width: 100%;
+        max-width: 100%;
+        padding: 12px 14px;
         position: relative;
         z-index: 10;
         overflow: visible !important;
@@ -930,7 +1011,7 @@
 
       .hero-surface {
         border: 1px solid rgba(57, 255, 20, 0.14);
-        border-radius: 18px;
+        border-radius: 16px;
         background: rgba(9, 9, 9, 0.82);
         clip-path: none !important;
         box-shadow: 0 16px 32px rgba(0, 0, 0, 0.22);
@@ -1001,6 +1082,7 @@
         grid-template-columns: repeat(2, minmax(0, 1fr));
         gap: 14px;
         align-items: stretch;
+        margin-top: 18px;
       }
 
       .comparison-surface {
@@ -1009,11 +1091,11 @@
       }
 
       .comparison-layout > .comparison-surface:first-child {
-        top: -18px;
+        top: 0;
       }
 
       .comparison-layout > .comparison-surface:last-child {
-        top: 24px;
+        top: 0;
       }
 
       .comparison-surface .summary {
@@ -1126,11 +1208,13 @@
       }
 
       .selected-panel {
-        height: 230px !important;
+        height: auto !important;
+        min-height: 0;
       }
 
       .selected-panel .compact-panel-body {
-        max-height: 132px;
+        max-height: none;
+        overflow-y: visible;
       }
 
       .compact-panel-body::-webkit-scrollbar {
@@ -1214,9 +1298,46 @@
 
       .search-field {
         position: relative;
-        flex: 1;
+        width: 100%;
         min-width: 240px;
         z-index: 100;
+      }
+
+      .search-surface {
+        width: min(100%, 760px);
+        max-width: 760px;
+        padding: 8px 12px;
+        gap: 8px;
+        margin-bottom: 14px;
+      }
+
+      .search-surface input {
+        padding: 8px 10px;
+      }
+
+      .search-surface button {
+        padding: 8px 13px;
+      }
+
+      .search-surface form,
+      .search-surface .controls {
+        display: grid;
+      }
+
+      .search-surface .search-field input {
+        width: 100%;
+      }
+
+      .search-surface button {
+        align-self: end;
+        justify-self: start;
+      }
+
+      @media (max-width: 640px) {
+        .search-surface {
+          width: 100%;
+          max-width: 100%;
+        }
       }
 
       .search-surface label,
@@ -1332,8 +1453,11 @@
 
       .chart img {
         width: 100%;
-        border-radius: 12px;
-        border: 1px solid #dedede;
+        display: block;
+        border-radius: 10px;
+        border: 1px solid rgba(57, 255, 20, 0.22);
+        background: #080808;
+        box-shadow: inset 0 0 0 1px rgba(57, 255, 20, 0.05), 0 10px 20px rgba(0, 0, 0, 0.24);
       }
 
       table {
@@ -1503,7 +1627,7 @@
       .selected-list {
         display: grid;
         grid-template-columns: 1fr;
-        gap: 10px;
+        gap: 6px;
         padding: 0;
         list-style: none;
       }
@@ -1513,8 +1637,8 @@
         align-items: center;
         justify-content: space-between;
         gap: 10px;
-        min-height: 48px;
-        padding: 8px 10px;
+        min-height: 42px;
+        padding: 6px 8px;
         border: 1px solid rgba(57, 255, 20, 0.16);
         border-radius: 10px;
         background: linear-gradient(135deg, rgba(57, 255, 20, 0.1), rgba(255, 255, 255, 0.03));
@@ -1915,8 +2039,11 @@
               <div id="sleeper-menu" class="top-news-menu sleeper-menu" hidden>
                 <form id="sleeper-upload" class="sleeper-upload" enctype="multipart/form-data">
                   <div class="sleeper-upload-title">League intelligence</div>
-                  <div class="sleeper-upload-copy">Upload a JSON file containing your Sleeper <strong>league_id</strong>. The wrapper will fetch standings, rosters, and team analytics.</div>
-                  <input id="league-file" name="league_file" type="file" accept=".json,application/json" required>
+                  <div class="sleeper-upload-copy">Enter your Sleeper league ID or upload a JSON file containing one. The wrapper will fetch standings, rosters, and team analytics.</div>
+                  <label for="league-id">Sleeper league ID</label>
+                  <input id="league-id" name="league_id" type="text" placeholder="e.g. 123456789012345678" inputmode="numeric" autocomplete="off">
+                  <div class="sleeper-upload-copy sleeper-divider">or upload league JSON</div>
+                  <input id="league-file" name="league_file" type="file" accept=".json,application/json">
                   <button type="submit">Analyze league</button>
                   <div id="sleeper-upload-status" class="sleeper-upload-status">No league loaded.</div>
                   <div id="sleeper-results"></div>
@@ -2026,6 +2153,7 @@
         const sleeperToggle = document.getElementById('sleeper-toggle');
         const sleeperMenu = document.getElementById('sleeper-menu');
         const sleeperUpload = document.getElementById('sleeper-upload');
+        const leagueIdInput = document.getElementById('league-id');
         const leagueFile = document.getElementById('league-file');
         const sleeperUploadStatus = document.getElementById('sleeper-upload-status');
         const sleeperResults = document.getElementById('sleeper-results');
@@ -2509,10 +2637,18 @@
         if (sleeperUpload) {
           sleeperUpload.addEventListener('submit', async (event) => {
             event.preventDefault();
-            if (!leagueFile?.files?.length) return;
+            const leagueId = leagueIdInput?.value.trim() || '';
+            if (!leagueId && !leagueFile?.files?.length) {
+              sleeperUploadStatus.textContent = 'Enter a league ID or choose a JSON file first.';
+              return;
+            }
             sleeperUploadStatus.textContent = 'Analyzing league with Sleeper...';
             sleeperResults.innerHTML = '';
             const formData = new FormData(sleeperUpload);
+            if (leagueId) {
+              formData.delete('league_file');
+              formData.set('league_id', leagueId);
+            }
             try {
               const response = await fetch('/sleeper-analytics', { method: 'POST', body: formData });
               const payload = await response.json();
@@ -2663,18 +2799,19 @@
         }
 
         async function updateSuggestions(query) {
-          if (!query || query.length < 2) {
+          const normalizedQuery = query.trim().toLowerCase();
+          if (!normalizedQuery || normalizedQuery.length < 2) {
             hideSuggestions();
             return;
           }
 
-          if (query === lastQuery && !suggestionsContainer.hidden) {
+          if (normalizedQuery === lastQuery && !suggestionsContainer.hidden) {
             return;
           }
 
-          if (suggestionCache.has(query)) {
-            renderSuggestions(suggestionCache.get(query));
-            lastQuery = query;
+          if (suggestionCache.has(normalizedQuery)) {
+            renderSuggestions(suggestionCache.get(normalizedQuery));
+            lastQuery = normalizedQuery;
             return;
           }
 
@@ -2685,7 +2822,7 @@
 
           try {
             const response = await fetch(
-              `/suggest?q=${encodeURIComponent(query)}`,
+              `/suggest?q=${encodeURIComponent(normalizedQuery)}`,
               { signal: fetchAbortController.signal }
             );
 
@@ -2695,8 +2832,11 @@
             }
 
             const suggestions = await response.json();
-            suggestionCache.set(query, suggestions);
-            lastQuery = query;
+            if (searchInput.value.trim().toLowerCase() !== normalizedQuery) {
+              return;
+            }
+            suggestionCache.set(normalizedQuery, suggestions);
+            lastQuery = normalizedQuery;
             renderSuggestions(suggestions);
           } catch (error) {
             if (error.name === 'AbortError') {
@@ -2713,16 +2853,15 @@
           const triggerSuggestions = () => {
             const query = searchInput.value.trim();
             if (!query) {
+              clearTimeout(timer);
               hideSuggestions();
               return;
             }
             clearTimeout(timer);
-            timer = window.setTimeout(() => updateSuggestions(query), 160);
+            timer = window.setTimeout(() => updateSuggestions(query), 70);
           };
 
           searchInput.addEventListener('input', triggerSuggestions);
-          searchInput.addEventListener('keyup', triggerSuggestions);
-          searchInput.addEventListener('change', triggerSuggestions);
           searchInput.addEventListener('focus', () => {
             const currentValue = searchInput.value.trim();
             if (currentValue.length >= 2) {

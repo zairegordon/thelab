@@ -1,0 +1,25 @@
+...............F..                                                       [100%]
+================================== FAILURES ===================================
+________________ test_manual_sleeper_league_id_loads_analytics ________________
+
+ui_page = <Page url='http://127.0.0.1:60421/'>
+
+    def test_manual_sleeper_league_id_loads_analytics(ui_page: Page) -> None:
+        ui_page.goto("/")
+        ui_page.locator("#sleeper-toggle").hover()
+        ui_page.locator("#sleeper-menu").wait_for(state="visible")
+        ui_page.locator("#league-id").fill("456")
+        ui_page.locator("#sleeper-upload button[type='submit']").click()
+    
+>       assert ui_page.locator("#sleeper-upload-status").inner_text() == "Analytics updated."
+E       AssertionError: assert 'ANALYTICS UPDATED.' == 'Analytics updated.'
+E         
+E         - Analytics updated.
+E         + ANALYTICS UPDATED.
+
+test_ui.py:162: AssertionError
+------------------------------ Captured log call ------------------------------
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [20/Aug/2026 20:41:39] "GET / HTTP/1.1" 200 -
+=========================== short test summary info ===========================
+FAILED test_ui.py::test_manual_sleeper_league_id_loads_analytics - AssertionE...
+1 failed, 17 passed in 80.31s (0:01:20)

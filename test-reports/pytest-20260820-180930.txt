@@ -1,0 +1,211 @@
+....FF...FFFFFF.                                                         [100%]
+================================== FAILURES ===================================
+___________ test_selected_players_persist_across_different_searches ___________
+
+    def test_selected_players_persist_across_different_searches():
+        app = create_app()
+    
+        response = app.test_client().get(
+            "/?search=mahomes&selected=Josh+Allen%7CQB%7CBUF&selected=Patrick+Mahomes%7CQB%7CKC"
+        )
+    
+        assert response.status_code == 200
+        assert b"Josh Allen" in response.data
+        assert b"Patrick Mahomes" in response.data
+>       assert b"0.0" not in response.data
+E       assert b'0.0' not in b'<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <title>The Lab</title>\n    <link rel="...n>\n            </div>\n          </div>\n        </section>\n      </div>\n\n      \n    </div>\n\n  </body>\n</html>'
+E        +  where b'<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <title>The Lab</title>\n    <link rel="...n>\n            </div>\n          </div>\n        </section>\n      </div>\n\n      \n    </div>\n\n  </body>\n</html>' = <WrapperTestResponse 100982 bytes [200 OK]>.data
+
+test_app.py:98: AssertionError
+________________ test_search_active_players_uses_team_rosters _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x000001CB68178290>
+
+    def test_search_active_players_uses_team_rosters(monkeypatch):
+        class FakeResponse:
+            def __init__(self, payload):
+                self.payload = payload
+    
+            def json(self):
+                return self.payload
+    
+            def raise_for_status(self):
+                return None
+    
+        def fake_get(url, timeout=20):
+            if url.endswith("/teams"):
+                return FakeResponse({
+                    "sports": [{
+                        "leagues": [{
+                            "teams": [{
+                                "team": {"id": "12", "abbreviation": "KC", "displayName": "Kansas City Chiefs"}
+                            }]
+                        }]
+                    }]
+                })
+            if url.endswith("/roster"):
+                return FakeResponse({
+                    "athletes": [{
+                        "position": "offense",
+                        "items": [{
+                            "fullName": "Patrick Mahomes",
+                            "displayPosition": {"name": "QB"},
+                            "team": {"abbreviation": "KC"},
+                        }]
+                    }]
+                })
+            raise AssertionError(f"Unexpected URL: {url}")
+    
+        monkeypatch.setattr("app.requests.get", fake_get)
+    
+        results = search_active_players("Mahomes")
+    
+>       assert results[0].name == "Patrick Mahomes"
+E       AssertionError: assert 'Christian McCaffrey' == 'Patrick Mahomes'
+E         
+E         - Patrick Mahomes
+E         + Christian McCaffrey
+
+test_app.py:140: AssertionError
+__________________ test_compare_players_reports_clear_winner __________________
+
+    def test_compare_players_reports_clear_winner():
+        players = get_default_players()
+        christian = next(player for player in players if player.name == "Christian McCaffrey")
+        jalen = next(player for player in players if player.name == "Jalen Hurts")
+    
+        result = compare_players(christian, jalen)
+    
+>       assert result["winner"] == "Christian McCaffrey"
+E       AssertionError: assert 'Jalen Hurts' == 'Christian McCaffrey'
+E         
+E         - Christian McCaffrey
+E         + Jalen Hurts
+
+test_app.py:190: AssertionError
+________________ test_home_page_shows_brand_and_player_search _________________
+
+ui_page = <Page url='http://127.0.0.1:54080/'>
+
+    def test_home_page_shows_brand_and_player_search(ui_page: Page) -> None:
+        ui_page.goto("/")
+    
+        assert ui_page.title() == "The Lab"
+>       assert ui_page.locator(".brand").inner_text() == "The Lab"
+E       AssertionError: assert 'THE LAB' == 'The Lab'
+E         
+E         - The Lab
+E         + THE LAB
+
+test_ui.py:100: AssertionError
+------------------------------ Captured log call ------------------------------
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [20/Aug/2026 18:09:51] "GET / HTTP/1.1" 200 -
+____________ test_player_search_shows_suggestions_and_locks_player ____________
+
+ui_page = <Page url='http://127.0.0.1:57980/?selected=Patrick+Mahomes%7CQB%7CKC'>
+
+    def test_player_search_shows_suggestions_and_locks_player(ui_page: Page) -> None:
+        ui_page.goto("/")
+        ui_page.locator("#search").fill("Mahomes")
+    
+        suggestion = ui_page.locator(".suggestion-item").filter(has_text="Patrick Mahomes")
+        suggestion.wait_for(state="visible")
+        suggestion.click()
+    
+        assert "selected=Patrick+Mahomes%7CQB%7CKC" in ui_page.url
+>       assert ui_page.locator(".selected-name").filter(has_text="Patrick Mahomes").is_visible()
+E       assert False
+E        +  where False = is_visible()
+E        +    where is_visible = <Locator frame=<Frame name= url='http://127.0.0.1:57980/?selected=Patrick+Mahomes%7CQB%7CKC'> selector='.selected-name >> internal:has-text="Patrick Mahomes"i'>.is_visible
+E        +      where <Locator frame=<Frame name= url='http://127.0.0.1:57980/?selected=Patrick+Mahomes%7CQB%7CKC'> selector='.selected-name >> internal:has-text="Patrick Mahomes"i'> = filter(has_text='Patrick Mahomes')
+E        +        where filter = <Locator frame=<Frame name= url='http://127.0.0.1:57980/?selected=Patrick+Mahomes%7CQB%7CKC'> selector='.selected-name'>.filter
+E        +          where <Locator frame=<Frame name= url='http://127.0.0.1:57980/?selected=Patrick+Mahomes%7CQB%7CKC'> selector='.selected-name'> = locator('.selected-name')
+E        +            where locator = <Page url='http://127.0.0.1:57980/?selected=Patrick+Mahomes%7CQB%7CKC'>.locator
+
+test_ui.py:115: AssertionError
+------------------------------ Captured log call ------------------------------
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [20/Aug/2026 18:09:57] "GET / HTTP/1.1" 200 -
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [20/Aug/2026 18:10:00] "GET /?selected=Patrick+Mahomes|QB|KC HTTP/1.1" 200 -
+______________ test_news_trending_and_injury_menus_load_content _______________
+
+ui_page = <Page url='http://127.0.0.1:60891/'>
+
+    def test_news_trending_and_injury_menus_load_content(ui_page: Page) -> None:
+        ui_page.goto("/")
+    
+        ui_page.locator("#trending-toggle").hover()
+        ui_page.locator("#trending-menu").wait_for(state="visible")
+>       assert ui_page.locator(".trending-name").inner_text() == "Patrick Mahomes"
+E       AssertionError: assert 'PATRICK MAHOMES' == 'Patrick Mahomes'
+E         
+E         - Patrick Mahomes
+E         + PATRICK MAHOMES
+
+test_ui.py:123: AssertionError
+------------------------------ Captured log call ------------------------------
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [20/Aug/2026 18:10:06] "GET / HTTP/1.1" 200 -
+____________________ test_nfl_teams_menu_lists_team_links _____________________
+
+ui_page = <Page url='http://127.0.0.1:60972/'>
+
+    def test_nfl_teams_menu_lists_team_links(ui_page: Page) -> None:
+        ui_page.goto("/")
+        ui_page.locator("#teams-toggle").hover()
+        ui_page.locator("#teams-menu").wait_for(state="visible")
+    
+        team_link = ui_page.locator("#teams-menu a[href*='team=KC']")
+        assert team_link.count() == 1
+>       assert "Chiefs" in team_link.inner_text()
+E       assert 'Chiefs' in 'CHIEFS'
+E        +  where 'CHIEFS' = inner_text()
+E        +    where inner_text = <Locator frame=<Frame name= url='http://127.0.0.1:60972/'> selector="#teams-menu a[href*='team=KC']">.inner_text
+
+test_ui.py:141: AssertionError
+------------------------------ Captured log call ------------------------------
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [20/Aug/2026 18:10:13] "GET / HTTP/1.1" 200 -
+_______________ test_two_selected_players_expose_compare_action _______________
+
+ui_page = <Page url='http://127.0.0.1:57928/?selected=Christian+McCaffrey%7CRB%7CSF&selected=Patrick+Mahomes%7CQB%7CKC'>
+
+    def test_two_selected_players_expose_compare_action(ui_page: Page) -> None:
+        query = urlencode(
+            [
+                ("selected", "Christian McCaffrey|RB|SF"),
+                ("selected", "Patrick Mahomes|QB|KC"),
+            ]
+        )
+        ui_page.goto(f"/?{query}")
+    
+        compare_button = ui_page.locator(".compare-action")
+        assert compare_button.is_visible()
+>       assert compare_button.inner_text().startswith("Compare trade")
+E       AssertionError: assert False
+E        +  where False = <built-in method startswith of str object at 0x000001CB67E4C930>('Compare trade')
+E        +    where <built-in method startswith of str object at 0x000001CB67E4C930> = 'COMPARE TRADE \u2192'.startswith
+E        +      where 'COMPARE TRADE \u2192' = inner_text()
+E        +        where inner_text = <Locator frame=<Frame name= url='http://127.0.0.1:57928/?selected=Christian+McCaffrey%7CRB%7CSF&selected=Patrick+Mahomes%7CQB%7CKC'> selector='.compare-action'>.inner_text
+
+test_ui.py:155: AssertionError
+------------------------------ Captured log call ------------------------------
+INFO     werkzeug:_internal.py:97 127.0.0.1 - - [20/Aug/2026 18:10:20] "GET /?selected=Christian+McCaffrey|RB|SF&selected=Patrick+Mahomes|QB|KC HTTP/1.1" 200 -
+============================== warnings summary ===============================
+test_app.py::test_selected_player_list_can_be_compared
+  C:\Users\zaire\Downloads\football_tingz-main\football_tingz-main\.venv\Lib\site-packages\sleeper_wrapper\stats.py:21: DeprecationWarning: The 'warn' method is deprecated, use 'warning' instead
+    logger.warn(warning_message)
+
+test_app.py::test_selected_player_list_can_be_compared
+test_app.py::test_selected_players_persist_across_different_searches
+  C:\Users\zaire\Downloads\football_tingz-main\football_tingz-main\app.py:1315: UserWarning: Tight layout not applied. The bottom and top margins cannot be made large enough to accommodate all Axes decorations.
+    fig.tight_layout()
+
+-- Docs: https://docs.pytest.org/en/stable/how-to/capture-warnings.html
+=========================== short test summary info ===========================
+FAILED test_app.py::test_selected_players_persist_across_different_searches
+FAILED test_app.py::test_search_active_players_uses_team_rosters - AssertionE...
+FAILED test_app.py::test_compare_players_reports_clear_winner - AssertionErro...
+FAILED test_ui.py::test_home_page_shows_brand_and_player_search - AssertionEr...
+FAILED test_ui.py::test_player_search_shows_suggestions_and_locks_player - as...
+FAILED test_ui.py::test_news_trending_and_injury_menus_load_content - Asserti...
+FAILED test_ui.py::test_nfl_teams_menu_lists_team_links - assert 'Chiefs' in ...
+FAILED test_ui.py::test_two_selected_players_expose_compare_action - Assertio...
+8 failed, 8 passed, 3 warnings in 56.55s

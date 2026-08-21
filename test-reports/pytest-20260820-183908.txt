@@ -1,0 +1,58 @@
+.....F..........                                                         [100%]
+================================== FAILURES ===================================
+________________ test_search_active_players_uses_team_rosters _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x00000285BE21AC30>
+
+    def test_search_active_players_uses_team_rosters(monkeypatch):
+        class FakeResponse:
+            def __init__(self, payload):
+                self.payload = payload
+    
+            def json(self):
+                return self.payload
+    
+            def raise_for_status(self):
+                return None
+    
+        def fake_get(url, timeout=20):
+            if url.endswith("/teams"):
+                return FakeResponse({
+                    "sports": [{
+                        "leagues": [{
+                            "teams": [{
+                                "team": {"id": "12", "abbreviation": "KC", "displayName": "Kansas City Chiefs"}
+                            }]
+                        }]
+                    }]
+                })
+            if url.endswith("/roster"):
+                return FakeResponse({
+                    "athletes": [{
+                        "position": "offense",
+                        "items": [{
+                            "fullName": "Patrick Mahomes",
+                            "displayPosition": {"name": "QB"},
+                            "team": {"abbreviation": "KC"},
+                        }]
+                    }]
+                })
+            raise AssertionError(f"Unexpected URL: {url}")
+    
+        monkeypatch.setattr("app.requests.get", fake_get)
+        app._ROSTER_CACHE["players"] = []
+        app._ROSTER_CACHE["fetched_at"] = 0
+        app._PLAYER_SEARCH_CACHE.clear()
+    
+        results = search_active_players("Mahomes")
+    
+>       assert results[0].name == "Patrick Mahomes"
+E       AssertionError: assert 'Christian McCaffrey' == 'Patrick Mahomes'
+E         
+E         - Patrick Mahomes
+E         + Christian McCaffrey
+
+test_app.py:144: AssertionError
+=========================== short test summary info ===========================
+FAILED test_app.py::test_search_active_players_uses_team_rosters - AssertionE...
+1 failed, 15 passed in 94.53s (0:01:34)

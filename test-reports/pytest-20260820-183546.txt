@@ -1,0 +1,73 @@
+....FF..........                                                         [100%]
+================================== FAILURES ===================================
+___________ test_selected_players_persist_across_different_searches ___________
+
+    def test_selected_players_persist_across_different_searches():
+        app = create_app()
+    
+        response = app.test_client().get(
+            "/?search=mahomes&selected=Josh+Allen%7CQB%7CBUF&selected=Patrick+Mahomes%7CQB%7CKC"
+        )
+    
+        assert response.status_code == 200
+        assert b"Josh Allen" in response.data
+        assert b"Patrick Mahomes" in response.data
+>       assert b"0.0" not in response.data
+E       assert b'0.0' not in b'<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <title>The Lab</title>\n    <link rel="...n>\n            </div>\n          </div>\n        </section>\n      </div>\n\n      \n    </div>\n\n  </body>\n</html>'
+E        +  where b'<!doctype html>\n<html lang="en">\n  <head>\n    <meta charset="utf-8">\n    <title>The Lab</title>\n    <link rel="...n>\n            </div>\n          </div>\n        </section>\n      </div>\n\n      \n    </div>\n\n  </body>\n</html>' = <WrapperTestResponse 100982 bytes [200 OK]>.data
+
+test_app.py:98: AssertionError
+________________ test_search_active_players_uses_team_rosters _________________
+
+monkeypatch = <_pytest.monkeypatch.MonkeyPatch object at 0x0000021B85C74950>
+
+    def test_search_active_players_uses_team_rosters(monkeypatch):
+        class FakeResponse:
+            def __init__(self, payload):
+                self.payload = payload
+    
+            def json(self):
+                return self.payload
+    
+            def raise_for_status(self):
+                return None
+    
+        def fake_get(url, timeout=20):
+            if url.endswith("/teams"):
+                return FakeResponse({
+                    "sports": [{
+                        "leagues": [{
+                            "teams": [{
+                                "team": {"id": "12", "abbreviation": "KC", "displayName": "Kansas City Chiefs"}
+                            }]
+                        }]
+                    }]
+                })
+            if url.endswith("/roster"):
+                return FakeResponse({
+                    "athletes": [{
+                        "position": "offense",
+                        "items": [{
+                            "fullName": "Patrick Mahomes",
+                            "displayPosition": {"name": "QB"},
+                            "team": {"abbreviation": "KC"},
+                        }]
+                    }]
+                })
+            raise AssertionError(f"Unexpected URL: {url}")
+    
+        monkeypatch.setattr("app.requests.get", fake_get)
+    
+        results = search_active_players("Mahomes")
+    
+>       assert results[0].name == "Patrick Mahomes"
+E       AssertionError: assert 'Christian McCaffrey' == 'Patrick Mahomes'
+E         
+E         - Patrick Mahomes
+E         + Christian McCaffrey
+
+test_app.py:140: AssertionError
+=========================== short test summary info ===========================
+FAILED test_app.py::test_selected_players_persist_across_different_searches
+FAILED test_app.py::test_search_active_players_uses_team_rosters - AssertionE...
+2 failed, 14 passed in 76.55s (0:01:16)

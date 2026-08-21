@@ -10,8 +10,9 @@ import os
 import re
 import time
 import unicodedata
-from dataclasses import dataclass
+from dataclasses import dataclass, replace
 from datetime import datetime, timedelta, timezone
+from threading import Lock
 from typing import Dict, List, Optional
 
 import requests
@@ -80,6 +81,8 @@ def sleeper_projected_points(name: str, fallback: float) -> dict:
         "position_rank": None,
         "source": "App projection",
     }
+    if os.getenv("SLEEPER_PROJECTIONS_ENABLED", "1") != "1":
+        return result
     if SleeperPlayers is None or SleeperStats is None or not name:
         return result
 
@@ -105,12 +108,8 @@ def sleeper_projected_points(name: str, fallback: float) -> dict:
             if full_name != target:
                 continue
             projection = _SLEEPER_PROJECTION_CACHE["players"].get(str(player_id)) or {}
-            season_points = (
-                projection.get("pts_half_ppr")
-                or projection.get("pts_ppr")
-                or projection.get("pts_std")
-            )
-            if season_points is None or not isinstance(season_points, (int, float)):
+            season_points = projection.get("pts_half_ppr")
+            if not isinstance(season_points, (int, float)):
                 return result
             season_points = float(season_points)
             position = next(iter(sleeper_player_positions(player_data)), "")
@@ -119,11 +118,7 @@ def sleeper_projected_points(name: str, fallback: float) -> dict:
                 for candidate_id, candidate_data in directory.items():
                     candidate_positions = sleeper_player_positions(candidate_data)
                     candidate_projection = _SLEEPER_PROJECTION_CACHE["players"].get(str(candidate_id)) or {}
-                    candidate_points = (
-                        candidate_projection.get("pts_half_ppr")
-                        or candidate_projection.get("pts_ppr")
-                        or candidate_projection.get("pts_std")
-                    )
+                    candidate_points = candidate_projection.get("pts_half_ppr")
                     if position in candidate_positions and isinstance(candidate_points, (int, float)):
                         position_scores.append(float(candidate_points))
             position_scores.sort(reverse=True)
@@ -131,17 +126,18 @@ def sleeper_projected_points(name: str, fallback: float) -> dict:
                 (index for index, points in enumerate(position_scores, start=1) if points <= season_points),
                 None,
             )
-            games = projection.get("games_played") or projection.get("games") or projection.get("gp")
+            games = projection.get("gp")
             if games:
                 try:
                     games = max(float(games), 1)
                 except (TypeError, ValueError):
                     games = None
             per_game = round(season_points / games, 1) if games else round(season_points / 17, 1)
-            source = f"Sleeper {season} projection" if games else f"Sleeper {season} annual projection / 17"
+            source = f"Sleeper {season} half-PPR projection" if games else f"Sleeper {season} half-PPR projection / 17"
             return {
                 "season": round(season_points, 1),
                 "per_game": per_game,
+                "games": games,
                 "position_rank": position_rank,
                 "source": source,
             }
@@ -640,6 +636,7 @@ def _normalize_roster_value(value, fallback="FLEX") -> str:
     return str(value)
 
 _ROSTER_CACHE = {"players": [], "fetched_at": 0}
+_ROSTER_LOAD_LOCK = Lock()
 _ROSTER_CACHE_TTL = 60 * 60
 _TEAM_ROSTER_CACHE = {}
 _TEAM_ROSTER_CACHE_TTL = 5 * 60
@@ -972,6 +969,8 @@ def _fetch_all_active_players(year: int = 2026) -> List[Player]:
                 raw_position = item.get("displayPosition") or item.get("position") or "FLEX"
                 position = _normalize_roster_value(raw_position, "FLEX").upper()
                 raw_team = item.get("team") or team.get("abbreviation") or "FA"
+                if isinstance(raw_team, dict):
+                    raw_team = raw_team.get("abbreviation") or raw_team.get("shortDisplayName") or "FA"
                 team_abbr = _normalize_roster_value(raw_team, "FA").upper()
                 projected = projected_by_position.get(position, 120.0)
                 floor = max(0.0, projected * 0.75)
@@ -1001,7 +1000,17 @@ def get_cached_active_players(year: int = 2026) -> List[Player]:
     if _ROSTER_CACHE["players"] and now - _ROSTER_CACHE["fetched_at"] < _ROSTER_CACHE_TTL:
         return _ROSTER_CACHE["players"]
 
-    players = _fetch_all_active_players(year)
+    if not _ROSTER_LOAD_LOCK.acquire(blocking=False):
+        return _ROSTER_CACHE["players"]
+
+    try:
+        now = time.time()
+        if _ROSTER_CACHE["players"] and now - _ROSTER_CACHE["fetched_at"] < _ROSTER_CACHE_TTL:
+            return _ROSTER_CACHE["players"]
+        players = _fetch_all_active_players(year)
+    finally:
+        _ROSTER_LOAD_LOCK.release()
+
     if players:
         _ROSTER_CACHE["players"] = players
         _ROSTER_CACHE["fetched_at"] = now
@@ -1024,6 +1033,13 @@ def search_active_players(query: str, year: int = 2026) -> List[Player]:
         return _PLAYER_SEARCH_CACHE[cache_key]
 
     results = [player for player in players if needle in player.name.lower()]
+    if not results and players:
+        refreshed_players = _fetch_all_active_players(year)
+        if refreshed_players:
+            _ROSTER_CACHE["players"] = refreshed_players
+            _ROSTER_CACHE["fetched_at"] = time.time()
+            players = refreshed_players
+            results = [player for player in players if needle in player.name.lower()]
     if results:
         results.sort(key=lambda player: player.projected_points, reverse=True)
         results = results[:12]
@@ -1049,8 +1065,6 @@ def get_team_roster(team_code: str, year: int = 2026) -> List[Player]:
     try:
         teams_response = requests.get(
             "https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams",
-            params={"season": year},
-            headers={"Cache-Control": "no-cache"},
             timeout=15,
         )
         teams_response.raise_for_status()
@@ -1072,8 +1086,6 @@ def get_team_roster(team_code: str, year: int = 2026) -> List[Player]:
         if team_id:
             roster_response = requests.get(
                 f"https://site.api.espn.com/apis/site/v2/sports/football/nfl/teams/{team_id}/roster",
-                params={"season": year},
-                headers={"Cache-Control": "no-cache"},
                 timeout=15,
             )
             roster_response.raise_for_status()
@@ -1166,11 +1178,14 @@ def compare_players(player_a: Player, player_b: Player, mode: str = "redraft") -
     b_projection = sleeper_projected_points(player_b.name, player_b.projected_points)
     a_projected_points = a_projection["season"]
     b_projected_points = b_projection["season"]
-    winner = player_a if a_projected_points >= b_projected_points else player_b
+    a_score = player_draft_score(replace(player_a, projected_points=a_projected_points), mode)
+    b_score = player_draft_score(replace(player_b, projected_points=b_projected_points), mode)
+    winner = player_a if a_score >= b_score else player_b
 
     return {
         "mode": mode,
         "winner": winner.name,
+        "score_gap": round(abs(a_score - b_score), 1),
         "category_winner": {
             "projected_points": player_a.name if a_projected_points >= b_projected_points else player_b.name,
             "floor": player_a.name if player_a.floor >= player_b.floor else player_b.name,
@@ -1183,7 +1198,7 @@ def compare_players(player_a: Player, player_b: Player, mode: str = "redraft") -
             "projected_points": a_projection["season"],
             "projected_points_per_game": a_projection["per_game"],
             "position_rank": a_projection["position_rank"],
-            "draft_score": player_draft_score(player_a, mode),
+            "draft_score": a_score,
             "projection_source": a_projection["source"],
             "headshot_url": player_a.headshot_url,
         },
@@ -1193,7 +1208,7 @@ def compare_players(player_a: Player, player_b: Player, mode: str = "redraft") -
             "projected_points": b_projection["season"],
             "projected_points_per_game": b_projection["per_game"],
             "position_rank": b_projection["position_rank"],
-            "draft_score": player_draft_score(player_b, mode),
+            "draft_score": b_score,
             "projection_source": b_projection["source"],
             "headshot_url": player_b.headshot_url,
         },
@@ -1215,13 +1230,23 @@ def player_from_identity(selected_value: str) -> Player:
         if team != "FA" and player.team.upper() != team.upper():
             continue
         return player
+    for player in get_default_players():
+        if player.name.lower() != name.lower():
+            continue
+        if position != "FLEX" and player.position.upper() != position.upper():
+            continue
+        if team != "FA" and player.team.upper() != team.upper():
+            continue
+        return player
+    projected_by_position = {"QB": 265.0, "RB": 165.0, "WR": 150.0, "TE": 120.0}
+    projected = projected_by_position.get(position.upper(), 135.0)
     return Player(
         name=name,
         position=position,
         team=team,
-        projected_points=0.0,
-        floor=0.0,
-        ceiling=0.0,
+        projected_points=projected,
+        floor=round(projected * 0.75, 1),
+        ceiling=round(projected * 1.25, 1),
         bye_week=0,
         risk="medium",
         headshot_url=resolve_headshot_url(name),
@@ -1285,20 +1310,43 @@ def format_player(player: Player) -> str:
     )
 
 
-def build_projection_chart(players: List[Player]) -> str:
-    """Create a Matplotlib comparison chart and return a base64-encoded PNG."""
+def build_projection_chart(players: List[Player], scores: Optional[List[float]] = None) -> str:
+    """Create a dark themed projected-points chart using the supplied comparison values."""
     names = [player.name for player in players]
-    scores = [player.projected_points for player in players]
+    chart_scores = scores if scores is not None else [player.projected_points for player in players]
 
-    fig, ax = plt.subplots(figsize=(10, 5))
-    bars = ax.bar(names, scores, color="#39ff14")
-    ax.set_title("Projected fantasy points")
-    ax.set_ylabel("Projected points")
-    ax.set_xlabel("Player")
-    ax.tick_params(axis="x", rotation=20)
-    for bar, value in zip(bars, scores):
-        ax.text(bar.get_x() + bar.get_width() / 2, value + 5, f"{value}", ha="center", va="bottom")
-    fig.tight_layout()
+    fig, ax = plt.subplots(figsize=(9, 4.4), facecolor="#080808")
+    ax.set_facecolor("#0b0b0b")
+    bars = ax.bar(
+        names,
+        chart_scores,
+        color="#39ff14",
+        edgecolor="#b8ffac",
+        linewidth=1.2,
+        width=0.54,
+        zorder=3,
+    )
+    ax.set_title("Projected points", loc="left", color="#f3f3f3", pad=16, fontsize=14, fontweight="bold")
+    ax.set_ylabel("Half-PPR season points", color="#a8a8a8", fontsize=9)
+    ax.tick_params(axis="x", colors="#f3f3f3", labelsize=9, length=0, pad=8)
+    ax.tick_params(axis="y", colors="#a8a8a8", labelsize=8, length=0)
+    ax.grid(axis="y", color="#254522", alpha=0.7, linewidth=0.8, zorder=0)
+    ax.set_axisbelow(True)
+    for spine in ax.spines.values():
+        spine.set_visible(False)
+    for bar, value in zip(bars, chart_scores):
+        ax.text(
+            bar.get_x() + bar.get_width() / 2,
+            value + max(chart_scores, default=1) * 0.035,
+            f"{value:.1f}",
+            ha="center",
+            va="bottom",
+            color="#f3f3f3",
+            fontsize=10,
+            fontweight="bold",
+        )
+    ax.set_ylim(0, max(chart_scores, default=1) * 1.18)
+    fig.tight_layout(pad=1.4)
 
     image_buffer = io.BytesIO()
     fig.savefig(image_buffer, format="png", dpi=150)
@@ -1443,7 +1491,13 @@ def create_app() -> Flask:
             comparison = compare_players(selected_players[0], selected_players[1], compare_mode)
 
         chart_players = selected_players if len(selected_players) == 2 else players[:10]
-        chart_data = build_projection_chart(chart_players)
+        chart_scores = None
+        if comparison:
+            chart_scores = [
+                comparison["player_a"]["projected_points"],
+                comparison["player_b"]["projected_points"],
+            ]
+        chart_data = build_projection_chart(chart_players, chart_scores)
         matchup_intel = build_matchup_intel(selected_players) if selected_players else []
         selected_team_name = NFL_TEAMS_BY_ABBR.get(selected_team, "")
         if selected_team_name:
@@ -1494,7 +1548,7 @@ def create_app() -> Flask:
                 "team": player.team,
                 "projected_points": player.projected_points,
                 "identity": player_identity(player),
-                "value": player.name,
+                "value": player_identity(player),
                 "display": f"{player.name} ({player.position}, {player.team})",
                 "headshot_url": player.headshot_url,
             }
@@ -1511,8 +1565,11 @@ def create_app() -> Flask:
     @app.route("/sleeper-analytics", methods=["POST"])
     def sleeper_analytics():
         uploaded_file = request.files.get("league_file")
-        if uploaded_file is None or not uploaded_file.filename:
-            return jsonify({"error": "Choose a Sleeper JSON file first."}), 400
+        league_id = (request.form.get("league_id") or "").strip()
+        if league_id:
+            uploaded_file = io.StringIO(json.dumps({"league_id": league_id}))
+        elif uploaded_file is None or not uploaded_file.filename:
+            return jsonify({"error": "Enter a Sleeper league ID or choose a JSON file first."}), 400
         try:
             return jsonify(build_sleeper_analytics(uploaded_file))
         except (RuntimeError, ValueError, KeyError, TypeError) as exc:

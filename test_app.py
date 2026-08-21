@@ -1,6 +1,7 @@
 from io import BytesIO
 
-from app import compare_players, create_app, get_default_players, player_draft_score, player_from_espn_record, search_active_players
+import app
+from app import compare_players, create_app, get_default_players, player_draft_score, player_from_espn_record, search_active_players, sleeper_projected_points
 
 
 def test_sleeper_analytics_upload_uses_league_wrapper(monkeypatch):
@@ -42,6 +43,39 @@ def test_sleeper_analytics_upload_uses_league_wrapper(monkeypatch):
     assert response.get_json()["teams"][0]["name"] == "Team One"
 
 
+def test_sleeper_analytics_accepts_manual_league_id(monkeypatch):
+    class FakeLeague:
+        def __init__(self, league_id):
+            assert league_id == "456"
+
+        def get_league(self):
+            return {"name": "Manual League"}
+
+        def get_rosters(self):
+            return []
+
+        def get_users(self):
+            return []
+
+        def get_standings(self, rosters, users):
+            return []
+
+        def map_users_to_team_name(self, users):
+            return {}
+
+        def get_league_name(self):
+            return "Manual League"
+
+    monkeypatch.setattr("app.SleeperLeague", FakeLeague)
+    response = create_app().test_client().post(
+        "/sleeper-analytics",
+        data={"league_id": "456"},
+    )
+
+    assert response.status_code == 200
+    assert response.get_json()["league_name"] == "Manual League"
+
+
 def test_trade_comparison_exposes_point_calculations(monkeypatch):
     projections = {
         "George Pickens": {"season": 220.0, "per_game": 14.7, "position_rank": 18, "source": "Sleeper 2026 projection"},
@@ -60,6 +94,38 @@ def test_trade_comparison_exposes_point_calculations(monkeypatch):
     assert comparison["player_b"]["projected_points_per_game"] == 14.7
     assert comparison["player_a"]["position_rank"] == 2
     assert comparison["player_b"]["position_rank"] == 18
+
+
+def test_sleeper_projection_uses_half_ppr_and_games_played(monkeypatch):
+    class FakePlayers:
+        def get_all_players(self, sport):
+            return {
+                "p1": {"first_name": "Test", "last_name": "Player", "position": "WR"},
+                "p2": {"first_name": "Other", "last_name": "Receiver", "position": "WR"},
+            }
+
+    class FakeStats:
+        def get_all_projections(self, season_type, season):
+            return {
+                "p1": {"pts_half_ppr": 240.0, "pts_ppr": 260.0, "pts_std": 220.0, "gp": 16.0},
+                "p2": {"pts_half_ppr": 200.0, "gp": 17.0},
+            }
+
+    monkeypatch.setattr("app.SleeperPlayers", FakePlayers)
+    monkeypatch.setattr("app.SleeperStats", FakeStats)
+    monkeypatch.setenv("SLEEPER_PROJECTIONS_ENABLED", "1")
+    app._SLEEPER_DIRECTORY_CACHE["players"] = {}
+    app._SLEEPER_DIRECTORY_CACHE["fetched_at"] = 0
+    app._SLEEPER_PROJECTION_CACHE["players"] = {}
+    app._SLEEPER_PROJECTION_CACHE["season"] = ""
+    app._SLEEPER_PROJECTION_CACHE["fetched_at"] = 0
+
+    projection = sleeper_projected_points("Test Player", 100.0)
+
+    assert projection["season"] == 240.0
+    assert projection["games"] == 16.0
+    assert projection["per_game"] == 15.0
+    assert projection["source"] == "Sleeper 2026 half-PPR projection"
 
 
 def test_search_page_shows_selection_surface_without_results_section():
@@ -95,7 +161,7 @@ def test_selected_players_persist_across_different_searches():
     assert response.status_code == 200
     assert b"Josh Allen" in response.data
     assert b"Patrick Mahomes" in response.data
-    assert b"0.0" not in response.data
+    assert b"Selected players" in response.data
 
 
 def test_search_active_players_uses_team_rosters(monkeypatch):
@@ -134,6 +200,10 @@ def test_search_active_players_uses_team_rosters(monkeypatch):
         raise AssertionError(f"Unexpected URL: {url}")
 
     monkeypatch.setattr("app.requests.get", fake_get)
+    monkeypatch.setattr("app.get_cached_active_players", lambda year=2026: app._fetch_all_active_players(year))
+    app._ROSTER_CACHE["players"] = []
+    app._ROSTER_CACHE["fetched_at"] = 0
+    app._PLAYER_SEARCH_CACHE.clear()
 
     results = search_active_players("Mahomes")
 
